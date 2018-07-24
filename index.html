@@ -1,0 +1,505 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <style>
+        *, *:before, *:after {
+            box-sizing:border-box;
+            margin:0;
+            padding:0;
+            outline:0;
+            list-style:none;
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-size: 18px;
+            color: #ccc;
+        }
+
+        input {
+            padding:2px;
+            font-size:0.8em;
+        }
+
+        body {
+            background-color: #0E0E0E;
+        }
+        
+        
+
+        #wrapper {
+           
+        }
+
+        #wrapper .column {
+            float:left;
+            width:50%;
+            height:100%;
+        }
+
+        #wrapper .column .module {
+            height:50%;
+            
+        }
+
+        .module.tl {
+            border-right:1px solid #aaa;
+            border-bottom:1px solid #aaa;
+            background-color:#202020;
+        }
+
+        .module.bl {
+            border-right:1px solid #aaa;
+        }
+        
+        .module.tr {
+            border-bottom:1px solid #aaa;
+        }
+
+        .module.br {
+            background-color: #202020;
+        }
+
+        #wrapper .column .module .header {
+            height:2em;
+            line-height:2em;
+            border-bottom:2px ridge #666;
+            position:relative;
+        }
+
+        .menu {
+            display:inline-block;
+            width:2em;
+            padding:0.3em 0.3em;
+            cursor:pointer;
+        }
+
+        .menu div {
+            margin-top:15%;
+            height:3px;
+            border-radius:2px;
+            background-color:#f0f0f0;
+        }
+
+        .module .header label {
+            vertical-align:top;
+        }
+
+        .module .header input.name {
+            display:none;
+            vertical-align:top;
+            margin-top:0.2em;
+            font-size:0.9em;
+        }
+
+        .module .header .settings {
+            position:absolute;
+            background-color:#333;
+            width:100%;
+            line-height:1.5em;
+            padding:0.5em;
+            top:35px;
+            border-bottom:2px ridge #666;
+            display:none;
+            max-height:400px;
+            overflow:auto;
+        }
+
+        .module .header .settings ul {
+            margin-left:0.8em;
+        }
+
+        .module .header .settings ul li {
+            position:relative;
+        }
+
+        .module .header .settings input[type="checkbox"] {
+            margin-right:4px;
+        }
+
+        .module .header .settings input[type="text"]{
+            display:inline-block;
+            padding:1px;
+            width:145px;
+        }
+
+        .module .header .settings .textbox {
+            padding-left:17px;
+        }
+
+        .module .header .settings .textbox label {
+            width:100px;
+            display:inline-block;
+        }
+
+
+        .module .header .menu.open ~ label {
+            display: none;
+        }
+
+        .module .header .menu.open ~ input.name {
+            display: inline-block;
+        }
+
+        .module .header .menu.open ~ .settings {
+            display: block;
+        }
+
+        #settings {
+            color:#ddd;
+            position:fixed;
+            top:0;
+            right:0;
+            width:100%;
+            display:none;
+            background-color:#555;
+            padding:10px;
+            border-left:1px solid #888;
+            border-bottom:1px solid #888;
+        }
+
+        #settings header {
+            line-height:30px;
+            font-size:1.5em;
+            padding-bottom:0.2em;
+            border-bottom:solid 1px #aaa;
+        }
+
+        #settings ul {
+            margin:0.5em 0;
+        }
+
+        #settings footer {
+            line-height:30px;
+            padding-top:0.2em;
+            border-top:solid 1px #aaa;
+        }
+
+        #settings footer a {
+            cursor:pointer;
+        }
+
+        #settings_button {
+            position: fixed;
+            opacity: 0.5;
+            transition: opacity 0.5s;
+            cursor:pointer;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+        }
+
+        #settings_button:hover {
+            opacity: 1.0;
+        }
+
+        @media screen and (min-width:400px) {
+            #settings {
+                width: 400px;
+                border-bottom-left-radius: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="wrapper">
+        <div class="column">
+            <div class="module tl">
+                <div class="header">
+                    <div class="menu">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <label class="name">Panel 1</label>
+                    <input type="text" class="name" value="Panel 1" />
+                    <div class="settings">
+                        <p>Include:</p>
+                        <ul class="include">
+                            <li><label><input type="checkbox" class="pleb" checked />Non-subs</label></li>
+                            <li><label><input type="checkbox" class="sub" checked />Subscribers</label></li>
+                            <li><label><input type="checkbox" class="mod" checked />Moderators</label></li>
+                            <li><label><input type="checkbox" class="event" checked />Channel events</label></li>
+                            <li class="textbox include_user"><label>From user:</label><input type="text" class="user" /></li>
+                            <li class="textbox include_keyword"><label>Contains:</label><input type="text" class="keyword" /></li>
+
+                        </ul>
+                        <p>Exclude:</p>
+                        <ul>
+                            <li class="textbox exclude_user"><label>From user:</label><input type="text" class="user" /></li>
+                            <li class="textbox exclude_keyword"><label>Starts with:</label><input type="text" class="keyword" /></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="module bl"></div>
+        </div>
+
+        <div class="column">
+            <div class="module tr"></div>
+            <div class="module br"></div>
+        </div>
+
+    </div>
+
+    <div id="settings">
+        <header>Settings</header>
+        <ul>
+            <li>
+                <label>Channel:</label>
+                <input type="text" id="txtChannel"  />
+            </li>
+        </ul>
+        <footer>
+            <a onclick="$('#settings_button').click();">Close</a>
+        </footer>
+    </div>
+
+    <img id="settings_button" src="settings_white.png" />
+
+
+
+
+
+
+
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="http://localhost/twitch-events/twitch-events.js"></script>
+    <script>
+        /* default colors
+
+        #0000FF
+        #008000
+        #FF0000
+        #B22222
+        #FF7F50
+        #9ACD32
+        #FF4500
+        #2E8B57
+        #DAA520
+        #D2691E
+        #5F9EA0
+        #1E90FF
+        #FF69B4
+        #8A2BE2
+        #00FF7F
+
+        */
+
+        var client //twitch irc client
+            , queryList //query string params
+            ;
+
+        var config =
+            {
+                ClientID: 'dcirpjuzebyjmxvjyj30x6pybo8nx9',
+                Nick: 'botshifter08',
+                Pass: 'oauth:3a6ua6vqiqsc8xcm0fvxm4i89rsaet'
+            };
+
+
+        (function () {
+
+            //create queryList array
+            if (window.location.search) {
+                var query = window.location.search;
+                var queryParts = query.substring(1).split('&');
+                for (var i = 0; i < queryParts.length; i++) {
+                    var parts = queryParts[i].split('=');
+                    queryList[parts[0].trim()] = parts[1].trim();
+
+                }
+            }
+
+            $('#txtChannel').on('input', UpdateChannelTimer);
+
+            $('#settings_button').click(function () {
+                if ($('#settings').is(':visible'))
+                    $('#settings').fadeOut();
+                else
+                    $('#settings').fadeIn();
+            });
+
+            $('.menu').click(function () {
+                var $lbl = $(this).parent().children('label'),
+                    $tb = $(this).parent().children('input');
+
+                if ($(this).hasClass('open')) {
+                    $(this).removeClass('open');
+                    $lbl.html($tb.val());
+                }
+                else {
+                    $(this).addClass('open');
+                    $tb.val($lbl.html());
+                }
+            });
+
+            $('.module .settings input[type="text"]').on('keyup', function (e) {
+                if (e.keyCode == 13) {
+                    var cls = $(this).closest('li').attr('class').replace('textbox', '');
+                    var $li = $(`<li><label><input type="checkbox" value="${$(this).val()}" class="${cls}" checked />${$(this).closest('li').find('label').html()} ${$(this).val()}</label></li>`);
+                    $(this).closest('li').before($li);
+                    $(this).val('');
+
+                }
+            });
+
+            InitClient();
+        })();
+
+        function InitClient() {
+            client = new TwitchClient({
+                Debug: true
+            });
+
+            client.onPrivmsg = function (user, channel, message) {
+                //console.log('onPrivmsg', { 'Username': user, 'Channel': channel, 'Message': message, 'Timestamp': new Date() });
+            };
+
+            client.onUsernotice = function (message) {
+                //console.log(message);
+            };
+
+            var ch = localStorage.getItem('channel');
+            if (ch) {
+                txtChannel.value = ch;
+                client.JoinChannels(ch);
+            }
+
+            LoadCheerEmotes();
+
+        }
+
+        var channelTimerId = -1;
+
+        function UpdateChannelTimer() {
+            console.log('ping');
+            clearTimeout(channelTimerId);
+            channelTimerId = setTimeout(UpdateChannel, 500);
+        }
+
+        function UpdateChannel() {
+            client.LeaveChannels(client.Channels);
+
+            client.JoinChannels(txtChannel.value.toLowerCase());
+            localStorage.setItem('channel', txtChannel.value.toLowerCase());
+        }
+
+        /*
+        var request = window.indexedDB.open("MyTestDatabase", 1);
+
+        var db;
+        var request = indexedDB.open("MyTestDatabase");
+
+        request.onerror = function (event) {
+            //alert("Database error: " + event.target.errorCode);
+            document.getElementsByTagName('body')[0].style.backgroundColor = 'red';
+        };
+        request.onsuccess = function (event) {
+            db = event.target.result;
+            // alert('success');
+            document.getElementsByTagName('body')[0].style.backgroundColor = 'green';
+        };
+        */
+
+
+        /*
+
+
+              if (hasCheer) {
+
+                                var msgWords = msg.toLowerCase().split(' ');
+                                var cheersFound = [];
+
+                                var cheerTest = /^([a-z]+)(\d+)$/;
+                                var cheerIdx = 0;
+
+                                for (i in msgWords) {
+                                    if (cheerTest.test(msgWords[i])) {
+                                        var cheerResult = cheerTest.exec(msgWords[i]);
+
+                                        if (validEmotes.indexOf(cheerResult[1]) > -1) {
+                                            var o = { prefix: cheerResult[1], level: 0 };
+                                            for (j in cheerLevels) {
+                                                if (cheerResult[2] >= cheerLevels[j])
+                                                    o.level = cheerLevels[j];
+                                                else
+                                                    break;
+                                            }
+
+                                            cheersFound.push(o);
+                                            if (!cheers[`${o.prefix}${o.level}`]) {
+                                                cheers[`${o.prefix}${o.level}`] = [];
+                                                LoadCheerData(`${o.prefix}${o.level}`);
+                                            }
+                                        }
+
+                                    }
+                                }
+
+                                console.log(cheersFound);
+
+                            }
+                            else if (hasEmote)
+                                ParseMessage('manual', 'emote ' + emoteIdx);
+                            else
+                                ParseMessage(user, msg, userIsSub);
+
+        */
+
+
+
+        function OnBodyResize() {
+            //document.getElementById('content').innerHTML = window.innerWidth + ',' + window.innerHeight;
+        }
+
+        OnBodyResize();
+
+
+            
+            var _emoteReq,
+                validEmotes = [],
+                cheerLevels = [],
+                cheerURL = 'https://d3aqoihi2n8ty8.cloudfront.net/actions/{prefix}/light/animated/{tier}/1.5.gif',
+                cheers = {},
+                cheerSize = 42;
+
+            function LoadCheerEmotes() {
+
+                _emoteReq = new XMLHttpRequest();
+
+                _emoteReq.onreadystatechange = function () {
+
+                    if (this.readyState == 4 && this.status === 200) {
+                        var json = JSON.parse(this.responseText);
+
+                        validEmotes = [];
+                        cheerLevels = [];
+
+                        for (i in json.actions) {
+                            validEmotes.push(json.actions[i].prefix.toLowerCase());
+                        }
+
+                        for (i in json.actions[0].tiers) {
+                            cheerLevels.push(json.actions[0].tiers[i].min_bits);
+                        }
+
+                    }
+                }
+
+                _emoteReq.open('GET', 'https://api.twitch.tv/kraken/bits/actions');
+                _emoteReq.setRequestHeader('Accept', 'application/vnd.twitchtv.v5+json');
+                _emoteReq.setRequestHeader('Client-ID', 'dcirpjuzebyjmxvjyj30x6pybo8nx9');
+                _emoteReq.send();
+            }
+            
+    </script>
+</body>
+</html>
