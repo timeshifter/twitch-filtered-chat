@@ -14,7 +14,7 @@
         html, body {
             width: 100%;
             height: 100%;
-            font-size: 18px;
+            font-size: 16px;
             color: #ccc;
         }
 
@@ -39,10 +39,10 @@
             height:100%;
         }
 
-        #wrapper .column .module {
-            height:50%;
-            
-        }
+            #wrapper .column .module {
+                height: 50%;
+                position: relative;
+            }
 
         .module.tl {
             border-right:1px solid #aaa;
@@ -50,23 +50,29 @@
             background-color:#202020;
         }
 
+        .module.tl .header {
+            background-color:#2b2b2b;
+        }
+
         .module.bl {
             border-right:1px solid #aaa;
         }
-        
-        .module.tr {
-            border-bottom:1px solid #aaa;
+
+        #wrapper .column .module.right {
+            height: 100%;
         }
 
-        .module.br {
-            background-color: #202020;
-        }
+
 
         #wrapper .column .module .header {
-            height:2em;
-            line-height:2em;
-            border-bottom:2px ridge #666;
-            position:relative;
+            height: 2.2em;
+            line-height: 2em;
+            border-bottom: 2px ridge #666;
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+            background-color: #191919;
         }
 
         .menu {
@@ -94,57 +100,88 @@
             font-size:0.9em;
         }
 
-        .module .header .settings {
+        .module .settings {
             position:absolute;
+            top:2.2em;
             background-color:#333;
             width:100%;
             line-height:1.5em;
             padding:0.5em;
-            top:35px;
             border-bottom:2px ridge #666;
             display:none;
-            max-height:400px;
+            max-height:75%;
             overflow:auto;
         }
 
-        .module .header .settings ul {
+        .module.full .settings {
+            max-height:37.4%;
+        }
+
+        .module.settings ul {
             margin-left:0.8em;
         }
 
-        .module .header .settings ul li {
+        .module .settings ul li {
             position:relative;
         }
 
-        .module .header .settings input[type="checkbox"] {
+        .module .settings input[type="checkbox"] {
             margin-right:4px;
         }
 
-        .module .header .settings input[type="text"]{
+        .module .settings input[type="text"]{
             display:inline-block;
             padding:1px;
             width:145px;
         }
 
-        .module .header .settings .textbox {
+        .module  .settings .textbox {
             padding-left:17px;
         }
 
-        .module .header .settings .textbox label {
+        .module .settings .textbox label {
             width:100px;
             display:inline-block;
         }
 
 
-        .module .header .menu.open ~ label {
+        .module .header.open label {
             display: none;
         }
 
-        .module .header .menu.open ~ input.name {
+        .module .header.open input.name {
             display: inline-block;
         }
 
-        .module .header .menu.open ~ .settings {
+        .module .header.open ~ .settings {
             display: block;
+        }
+
+        .module .content {
+            padding:2.2em 0 0 0;
+            height:100%;
+            overflow:auto;
+        }
+
+        .module .content p {
+            line-height:1.3em;
+            padding:4px;
+        }
+
+        .module .content p:nth-child(2n) {
+            background-color:#303030;
+        }
+
+        .module .content p .username {
+            font-weight:bold;
+        }
+
+        .module .content p img {
+            vertical-align:middle;
+        }
+
+        .module .content p span.badges img {
+            margin-right:3px;
         }
 
         #settings {
@@ -217,33 +254,105 @@
                     </div>
                     <label class="name">Panel 1</label>
                     <input type="text" class="name" value="Panel 1" />
-                    <div class="settings">
-                        <p>Include:</p>
-                        <ul class="include">
-                            <li><label><input type="checkbox" class="pleb" checked />Non-subs</label></li>
-                            <li><label><input type="checkbox" class="sub" checked />Subscribers</label></li>
-                            <li><label><input type="checkbox" class="mod" checked />Moderators</label></li>
-                            <li><label><input type="checkbox" class="event" checked />Channel events</label></li>
-                            <li class="textbox include_user"><label>From user:</label><input type="text" class="user" /></li>
-                            <li class="textbox include_keyword"><label>Contains:</label><input type="text" class="keyword" /></li>
 
-                        </ul>
-                        <p>Exclude:</p>
-                        <ul>
-                            <li class="textbox exclude_user"><label>From user:</label><input type="text" class="user" /></li>
-                            <li class="textbox exclude_keyword"><label>Starts with:</label><input type="text" class="keyword" /></li>
-                        </ul>
-                    </div>
+
                 </div>
+                <div class="settings">
+                    <p>Include:</p>
+                    <ul class="include">
+                        <li><label><input type="checkbox" class="pleb" checked />Non-subs</label></li>
+                        <li><label><input type="checkbox" class="sub" checked />Subscribers</label></li>
+                        <li><label><input type="checkbox" class="mod" checked />Moderators</label></li>
+                        <li><label><input type="checkbox" class="event" checked />Channel events</label></li>
+                        <li><label><input type="checkbox" class="bits" checked />Bit messages</label></li>
+                        <li class="textbox include_user"><label>From user:</label><input type="text" class="user" /></li>
+                        <li class="textbox include_keyword"><label>Contains:</label><input type="text" class="keyword" /></li>
+
+                    </ul>
+                    <p>Exclude:</p>
+                    <ul>
+                        <li class="textbox exclude_user"><label>From user:</label><input type="text" class="user" /></li>
+                        <li class="textbox exclude_keyword"><label>Starts with:</label><input type="text" class="keyword" /></li>
+                    </ul>
+                </div>
+                <div class="content">
+
+                </div>
+
             </div>
 
 
-            <div class="module bl"></div>
+            <div class="module bl">
+                <div class="header">
+                    <div class="menu">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <label class="name">Panel 1</label>
+                    <input type="text" class="name" value="Panel 1" />
+                </div>
+                <div class="settings">
+                    <p>Include:</p>
+                    <ul class="include">
+                        <li><label><input type="checkbox" class="pleb" checked />Non-subs</label></li>
+                        <li><label><input type="checkbox" class="sub" checked />Subscribers</label></li>
+                        <li><label><input type="checkbox" class="mod" checked />Moderators</label></li>
+                        <li><label><input type="checkbox" class="event" checked />Channel events</label></li>
+                        <li><label><input type="checkbox" class="bits" checked />Bit messages</label></li>
+                        <li class="textbox include_user"><label>From user:</label><input type="text" class="user" /></li>
+                        <li class="textbox include_keyword"><label>Contains:</label><input type="text" class="keyword" /></li>
+
+                    </ul>
+                    <p>Exclude:</p>
+                    <ul>
+                        <li class="textbox exclude_user"><label>From user:</label><input type="text" class="user" /></li>
+                        <li class="textbox exclude_keyword"><label>Starts with:</label><input type="text" class="keyword" /></li>
+                    </ul>
+                </div>
+
+                <div class="content">
+
+                </div>
+
+            </div>
         </div>
 
         <div class="column">
-            <div class="module tr"></div>
-            <div class="module br"></div>
+            <div class="module right full">
+                <div class="header">
+                    <div class="menu">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <label class="name">Panel 1</label>
+                    <input type="text" class="name" value="Panel 1" />
+                </div>
+                <div class="settings">
+                    <p>Include:</p>
+                    <ul class="include">
+                        <li><label><input type="checkbox" class="pleb" checked />Non-subs</label></li>
+                        <li><label><input type="checkbox" class="sub" checked />Subscribers</label></li>
+                        <li><label><input type="checkbox" class="mod" checked />Moderators</label></li>
+                        <li><label><input type="checkbox" class="event" checked />Channel events</label></li>
+                        <li><label><input type="checkbox" class="bits" checked />Bit messages</label></li>
+                        <li class="textbox include_user"><label>From user:</label><input type="text" class="user" /></li>
+                        <li class="textbox include_keyword"><label>Contains:</label><input type="text" class="keyword" /></li>
+
+                    </ul>
+                    <p>Exclude:</p>
+                    <ul>
+                        <li class="textbox exclude_user"><label>From user:</label><input type="text" class="user" /></li>
+                        <li class="textbox exclude_keyword"><label>Starts with:</label><input type="text" class="keyword" /></li>
+                    </ul>
+                </div>
+
+                <div class="content">
+
+                </div>
+
+            </div>
         </div>
 
     </div>
@@ -271,35 +380,45 @@
 
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="http://localhost/twitch-events/twitch-events.js"></script>
+    <script src="https://timeshifter.github.io/twitch-events/twitch-events.js"></script>
+    <!--<script src="http://localhost/twitch-events/twitch-events.js"></script>-->
+
     <script>
-        /* default colors
 
-        #0000FF
-        #008000
-        #FF0000
-        #B22222
-        #FF7F50
-        #9ACD32
-        #FF4500
-        #2E8B57
-        #DAA520
-        #D2691E
-        #5F9EA0
-        #1E90FF
-        #FF69B4
-        #8A2BE2
-        #00FF7F
+        var default_colors = [
+            '#0000FF',
+            '#008000',
+            '#FF0000',
+            '#B22222',
+            '#FF7F50',
+            '#9ACD32',
+            '#FF4500',
+            '#2E8B57',
+            '#DAA520',
+            '#D2691E',
+            '#5F9EA0',
+            '#1E90FF',
+            '#FF69B4',
+            '#8A2BE2',
+            '#00FF7F'
+        ];
 
-        */
+        function GetRandomColor() {
+            return default_colors[Math.floor(Math.random() * default_colors.length)];
+        }
 
         var client //twitch irc client
-            , queryList //query string params
+            , queryList = {} //query string params
+            , global_badges = {} //all global badges
+            , channelTimerId = -1 //delay for changing channel text box
+            , channel_badges = {} //all channel-specific badges
+            , user_undefined_colors = {} //list of users with no defined color, to store a randomly chosen color
             ;
 
 
 
         (function () {
+            GetGlobalBadges();
 
             //create queryList array
             if (window.location.search) {
@@ -325,12 +444,12 @@
                 var $lbl = $(this).parent().children('label'),
                     $tb = $(this).parent().children('input');
 
-                if ($(this).hasClass('open')) {
-                    $(this).removeClass('open');
+                if ($(this).parent().hasClass('open')) {
+                    $(this).parent().removeClass('open');
                     $lbl.html($tb.val());
                 }
                 else {
-                    $(this).addClass('open');
+                    $(this).parent().addClass('open');
                     $tb.val($lbl.html());
                 }
             });
@@ -350,11 +469,94 @@
 
         function InitClient() {
             client = new TwitchClient({
-                Debug: true
+                Debug: false
             });
 
-            client.onPrivmsg = function (user, channel, message) {
-                //console.log('onPrivmsg', { 'Username': user, 'Channel': channel, 'Message': message, 'Timestamp': new Date() });
+            client.onRoomstate = function (channel, settings) {
+                console.log(channel, settings['room-id']);
+                GetChannelBadges(settings['room-id']);
+            };
+
+            client.onPrivmsg = function (user, channel, message, userData) {
+                // if (userData.emotes != "")
+                //     console.log(userData.emotes);
+
+                var user_col = userData['color'];
+                if (user_col == '') {
+                    if (!user_undefined_colors[user]) {
+                        user_undefined_colors[user] = GetRandomColor();
+                    }
+
+                    user_col = user_undefined_colors[user];
+                }
+
+                //replace chat emote keywords with actual emote images
+                if (userData.emotes != "") {
+
+                    var emoteParts = userData.emotes.split('/'),
+                        emoteList = [];
+
+                    for (var i in emoteParts) {
+
+                        var emoteId = emoteParts[i].split(':')[0], emoteStart, emoteEnd;
+                        var emoteLocations = emoteParts[i].split(':')[1].split(',');
+
+                        for (var l in emoteLocations) {
+
+                            emoteList.push({
+                                id: emoteId,
+                                start: parseInt(emoteLocations[l].split('-')[0], 10),
+                                end: parseInt(emoteLocations[l].split('-')[1], 10)
+                            });
+                        }
+
+                    }
+
+                    emoteList.sort((a, b) => b.start - a.start);
+                    console.log(emoteList);
+
+                    for (var i in emoteList) {
+                        console.log(i);
+                        message = message.substring(0, emoteList[i].start) + `<img src="https://static-cdn.jtvnw.net/emoticons/v1/${emoteList[i].id}/1.0" />` + message.substring(emoteList[i].end + 1);
+                    }
+
+                }
+
+                var badge_text = '';
+
+                if (userData['@badges'] != "") {
+                    var badges = userData["@badges"].split(',');
+
+                    for (i in badges) {
+                        if (channel_badges[badges[i]])
+                            badge_text += `<img src="${channel_badges[badges[i]]}" />`;
+                        else
+                            badge_text += `<img src="${global_badges[badges[i]]}" />`;
+                    }
+                    badge_text = '<span class="badges">' + badge_text + '</span>';
+                }
+    
+
+                var p = `<p>${badge_text} <span class="username" style="color: ${user_col}">${userData["display-name"]}</span>: ${message}`;
+
+
+                $('.module .content').each(function () {
+                    var el = $(this)[0],
+                        scroll = false;
+
+                    if (el.clientHeight + el.scrollTop >= el.scrollHeight)
+                        scroll = true;
+
+
+                    $(this).append(p);
+
+
+                    if (scroll)
+                        el.scrollTop = el.scrollHeight;
+                });
+
+
+                
             };
 
             client.onUsernotice = function (message) {
@@ -367,14 +569,14 @@
                 client.JoinChannels(ch);
             }
 
-            LoadCheerEmotes();
+
+
+            //LoadCheerEmotes();
 
         }
 
-        var channelTimerId = -1;
 
         function UpdateChannelTimer() {
-            console.log('ping');
             clearTimeout(channelTimerId);
             channelTimerId = setTimeout(UpdateChannel, 500);
         }
@@ -385,6 +587,67 @@
             client.JoinChannels(txtChannel.value.toLowerCase());
             localStorage.setItem('channel', txtChannel.value.toLowerCase());
         }
+
+
+        function GetChannelBadges(channelId) {
+
+            var badge_req = new XMLHttpRequest();
+
+            badge_req.onreadystatechange = function () {
+
+                if (this.readyState == 4 && this.status === 200) {
+                    var json = JSON.parse(this.responseText);
+
+                    if (json.badge_sets.bits) {
+                        for (b in json.badge_sets.bits.versions) {
+                            channel_badges[`bits/${b}`] = json.badge_sets.bits.versions[b]["image_url_1x"];
+                        }
+                    }
+
+                    if (json.badge_sets.subscriber) {
+                        for (s in json.badge_sets.subscriber.versions) {
+                            channel_badges[`subscriber/${s}`] = json.badge_sets.subscriber.versions[s]["image_url_1x"];
+                        }
+                    }
+
+                }
+            }
+
+            badge_req.open('GET', `https://badges.twitch.tv/v1/badges/channels/${channelId}/display`);
+            badge_req.setRequestHeader('Accept', 'application/vnd.twitchtv.v5+json');
+            //badge_req.setRequestHeader('Client-ID', 'dcirpjuzebyjmxvjyj30x6pybo8nx9');
+            badge_req.send();
+
+        }
+
+
+        function GetGlobalBadges() {
+            var global_req = new XMLHttpRequest();
+
+            global_req.onreadystatechange = function () {
+
+                if (this.readyState == 4 && this.status === 200) {
+                    var json = JSON.parse(this.responseText);
+                    for (s in json.badge_sets) {
+
+                        for (v in json.badge_sets[s].versions) {
+                            global_badges[s + '/' + v] = json.badge_sets[s].versions[v]["image_url_1x"];
+                        }
+
+                        
+                    }
+                }
+            }
+
+            global_req.open('GET', 'https://badges.twitch.tv/v1/badges/global/display');
+            global_req.setRequestHeader('Accept', 'application/vnd.twitchtv.v5+json');
+            //badge_req.setRequestHeader('Client-ID', 'dcirpjuzebyjmxvjyj30x6pybo8nx9');
+            global_req.send();
+
+
+        }
+
+
 
         /*
         var request = window.indexedDB.open("MyTestDatabase", 1);
@@ -450,11 +713,7 @@
 
 
 
-        function OnBodyResize() {
-            //document.getElementById('content').innerHTML = window.innerWidth + ',' + window.innerHeight;
-        }
 
-        OnBodyResize();
 
 
             
