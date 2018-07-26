@@ -527,7 +527,7 @@
                     emoteList.sort((a, b) => b.start - a.start);
 
                     for (var i in emoteList) {
-                        console.log(i);
+                        //console.log(i);
                         message = message.substring(0, emoteList[i].start) + `<img src="https://static-cdn.jtvnw.net/emoticons/v1/${emoteList[i].id}/1.0" />` + message.substring(emoteList[i].end + 1);
                     }
                 }
@@ -608,9 +608,8 @@
                     var el = $(this)[0],
                         scroll = false;
 
-                    if (el.clientHeight + el.scrollTop >= el.scrollHeight)
+                    if (el.clientHeight + el.scrollTop >= el.scrollHeight - 30)
                         scroll = true;
-
 
                     $(this).append(p);
 
