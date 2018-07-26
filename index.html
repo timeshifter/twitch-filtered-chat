@@ -289,7 +289,7 @@
                         <div></div>
                         <div></div>
                     </div>
-                    <label class="name">Panel 1</label>
+                    <label class="name">Panel 2</label>
                     <input type="text" class="name" value="Panel 1" />
                 </div>
                 <div class="settings">
@@ -326,7 +326,7 @@
                         <div></div>
                         <div></div>
                     </div>
-                    <label class="name">Panel 1</label>
+                    <label class="name">Panel 3</label>
                     <input type="text" class="name" value="Panel 1" />
                 </div>
                 <div class="settings">
@@ -418,7 +418,7 @@
         var _emoteReq,
             validEmotes = [],
             cheerLevels = [],
-            cheerURL = 'https://d3aqoihi2n8ty8.cloudfront.net/actions/{prefix}/light/animated/{tier}/1.gif';
+            valid_cheers = [];
 
 
         (function () {
@@ -484,6 +484,7 @@
                 GetChannelBadges(settings['room-id']);
             };
 
+
             client.onPrivmsg = function (user, channel, message, userData) {
 
                 //use specified color if there is one; if not, pick a random one from the defaults and store it
@@ -499,7 +500,7 @@
                 var message_col = '';
                 if (message.indexOf('ACTION') == 0) {
                     message_col = `color: ${user_col}`;
-                    message = message.substring(8, message.length-1);
+                    message = message.substring(8, message.length - 1);
                 }
 
                 //replace chat emote keywords with actual emote images
@@ -521,18 +522,17 @@
                                 end: parseInt(emoteLocations[l].split('-')[1], 10)
                             });
                         }
-
                     }
 
                     emoteList.sort((a, b) => b.start - a.start);
-                   // console.log(emoteList);
 
                     for (var i in emoteList) {
                         console.log(i);
                         message = message.substring(0, emoteList[i].start) + `<img src="https://static-cdn.jtvnw.net/emoticons/v1/${emoteList[i].id}/1.0" />` + message.substring(emoteList[i].end + 1);
                     }
-
                 }
+
+
 
                 //get badges from channel list if it exists; if not, use global list
                 var badge_text = '';
@@ -547,50 +547,60 @@
                     }
                     badge_text = '<span class="badges">' + badge_text + '</span>';
                 }
-    
 
 
 
+                //bit parsing
                 if (userData.bits) {
 
-                    var msgWords = message.toLowerCase().split(' ');
-                    var cheersFound = [];
-
                     var cheerTest = /^([a-z]+)(\d+)$/;
-                    var cheerIdx = 0;
-                    
+
+                    var msgWords = message.toLowerCase().split(' '),
+                        msg_out = '';
 
                     for (i in msgWords) {
                         if (cheerTest.test(msgWords[i])) {
                             var cheerResult = cheerTest.exec(msgWords[i]);
 
-                            if (validEmotes.indexOf(cheerResult[1]) > -1) {
-                                var o = { prefix: cheerResult[1], level: 0 };
-                                for (j in cheerLevels) {
-                                    if (cheerResult[2] >= cheerLevels[j])
-                                        o.level = cheerLevels[j];
-                                    else
-                                        break;
-                                }
+                            var prefix = '';
 
-                                cheersFound.push(o);
-                                
+                            for (c_i in valid_cheers) {
+                                if (c_i == cheerResult[1]) {
+                                    prefix = c_i;
+                                    break;
+                                }   
                             }
 
+                            if (prefix != '') {
+                                var tier = 0,
+                                    col = '';
+
+                                for (j of valid_cheers[prefix]) {
+                                    if (cheerResult[2] >= j.bits) {
+                                        tier = j.bits;
+                                        col = j.color;
+                                    }
+                                    else {
+                                        break;
+                                    }
+                                }
+                                msg_out += `<span style="color:${col};font-weight:bold;"><img src="https://d3aqoihi2n8ty8.cloudfront.net/actions/${prefix}/dark/animated/${tier}/1.gif" /> ${cheerResult[2]}</span> `
+                            }
+                            else {
+                                msg_out += msgWords[i] + ' ';
+                            }
+                        }
+                        else {
+                            msg_out += msgWords[i] + ' ';
                         }
                     }
-
-                    console.log(cheersFound);
-
+                    message = msg_out;
                 }
 
 
 
-
-
-
                 //create the message html
-                var p = `<p>${badge_text} <span class="username" style="color: ${user_col}">${userData["display-name"]}</span>${message_col==''? " :" : ""} <span style="${message_col}">${message}</span>`;
+                var p = `<p>${badge_text} <span class="username" style="color: ${user_col}">${userData["display-name"]}</span>${message_col == '' ? ":" : ""} <span style="${message_col}">${message}</span>`;
 
                 //go through each module and append the message
                 //TODO: message filtering
@@ -622,8 +632,6 @@
             }
 
 
-
-            //LoadCheerEmotes();
 
         }
 
@@ -667,7 +675,6 @@
 
             badge_req.open('GET', `https://badges.twitch.tv/v1/badges/channels/${channelId}/display`);
             badge_req.setRequestHeader('Accept', 'application/vnd.twitchtv.v5+json');
-            //badge_req.setRequestHeader('Client-ID', 'dcirpjuzebyjmxvjyj30x6pybo8nx9');
             badge_req.send();
 
         }
@@ -686,119 +693,58 @@
                             global_badges[s + '/' + v] = json.badge_sets[s].versions[v]["image_url_1x"];
                         }
 
-                        
+
                     }
                 }
             }
 
             global_req.open('GET', 'https://badges.twitch.tv/v1/badges/global/display');
             global_req.setRequestHeader('Accept', 'application/vnd.twitchtv.v5+json');
-            //badge_req.setRequestHeader('Client-ID', 'dcirpjuzebyjmxvjyj30x6pybo8nx9');
             global_req.send();
 
 
         }
 
+        var raw_cheer;
 
+        function LoadCheerEmotes() {
 
-        /*
-        var request = window.indexedDB.open("MyTestDatabase", 1);
+            _emoteReq = new XMLHttpRequest();
 
-        var db;
-        var request = indexedDB.open("MyTestDatabase");
+            _emoteReq.onreadystatechange = function () {
 
-        request.onerror = function (event) {
-            //alert("Database error: " + event.target.errorCode);
-            document.getElementsByTagName('body')[0].style.backgroundColor = 'red';
-        };
-        request.onsuccess = function (event) {
-            db = event.target.result;
-            // alert('success');
-            document.getElementsByTagName('body')[0].style.backgroundColor = 'green';
-        };
-        */
+                if (this.readyState == 4 && this.status === 200) {
+                    var json = JSON.parse(this.responseText);
 
+                    raw_cheer = json;
 
-        /*
+                    validEmotes = [];
+                    cheerLevels = [];
 
+                    for (i in json.actions) {
 
-              if (hasCheer) {
-
-                                var msgWords = msg.toLowerCase().split(' ');
-                                var cheersFound = [];
-
-                                var cheerTest = /^([a-z]+)(\d+)$/;
-                                var cheerIdx = 0;
-
-                                for (i in msgWords) {
-                                    if (cheerTest.test(msgWords[i])) {
-                                        var cheerResult = cheerTest.exec(msgWords[i]);
-
-                                        if (validEmotes.indexOf(cheerResult[1]) > -1) {
-                                            var o = { prefix: cheerResult[1], level: 0 };
-                                            for (j in cheerLevels) {
-                                                if (cheerResult[2] >= cheerLevels[j])
-                                                    o.level = cheerLevels[j];
-                                                else
-                                                    break;
-                                            }
-
-                                            cheersFound.push(o);
-                                            if (!cheers[`${o.prefix}${o.level}`]) {
-                                                cheers[`${o.prefix}${o.level}`] = [];
-                                                LoadCheerData(`${o.prefix}${o.level}`);
-                                            }
-                                        }
-
-                                    }
-                                }
-
-                                console.log(cheersFound);
-
-                            }
-                            else if (hasEmote)
-                                ParseMessage('manual', 'emote ' + emoteIdx);
-                            else
-                                ParseMessage(user, msg, userIsSub);
-
-        */
-
-
-
-
-
-
-            
-
-            function LoadCheerEmotes() {
-
-                _emoteReq = new XMLHttpRequest();
-
-                _emoteReq.onreadystatechange = function () {
-
-                    if (this.readyState == 4 && this.status === 200) {
-                        var json = JSON.parse(this.responseText);
-
-                        validEmotes = [];
-                        cheerLevels = [];
-
-                        for (i in json.actions) {
-                            validEmotes.push(json.actions[i].prefix.toLowerCase());
+                        valid_cheers[json.actions[i].prefix.toLowerCase()] = [];
+                        for (t in json.actions[i].tiers) {
+                            valid_cheers[json.actions[i].prefix.toLowerCase()].push({
+                                bits: json.actions[i].tiers[t].min_bits,
+                                color: json.actions[i].tiers[t].color
+                            });
                         }
-
-                        for (i in json.actions[0].tiers) {
-                            cheerLevels.push(json.actions[0].tiers[i].min_bits);
-                        }
-
                     }
-                }
 
-                _emoteReq.open('GET', 'https://api.twitch.tv/kraken/bits/actions');
-                _emoteReq.setRequestHeader('Accept', 'application/vnd.twitchtv.v5+json');
-                _emoteReq.setRequestHeader('Client-ID', 'dcirpjuzebyjmxvjyj30x6pybo8nx9');
-                _emoteReq.send();
+                    //for (i in json.actions[0].tiers) {
+                    //    cheerLevels.push(json.actions[0].tiers[i].min_bits);
+                    //}
+
+                }
             }
-            
+
+            _emoteReq.open('GET', 'https://api.twitch.tv/kraken/bits/actions');
+            _emoteReq.setRequestHeader('Accept', 'application/vnd.twitchtv.v5+json');
+            _emoteReq.setRequestHeader('Client-ID', 'dcirpjuzebyjmxvjyj30x6pybo8nx9');
+            _emoteReq.send();
+        }
+
     </script>
 </body>
 </html>
