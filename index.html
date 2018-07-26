@@ -415,10 +415,15 @@
             , user_undefined_colors = {} //list of users with no defined color, to store a randomly chosen color
             ;
 
+        var _emoteReq,
+            validEmotes = [],
+            cheerLevels = [],
+            cheerURL = 'https://d3aqoihi2n8ty8.cloudfront.net/actions/{prefix}/light/animated/{tier}/1.gif';
 
 
         (function () {
             GetGlobalBadges();
+            LoadCheerEmotes();
 
             //create queryList array
             if (window.location.search) {
@@ -467,20 +472,21 @@
             InitClient();
         })();
 
+
+
         function InitClient() {
             client = new TwitchClient({
                 Debug: false
             });
 
             client.onRoomstate = function (channel, settings) {
-                console.log(channel, settings['room-id']);
+                //console.log(channel, settings['room-id']);
                 GetChannelBadges(settings['room-id']);
             };
 
             client.onPrivmsg = function (user, channel, message, userData) {
-                // if (userData.emotes != "")
-                //     console.log(userData.emotes);
 
+                //use specified color if there is one; if not, pick a random one from the defaults and store it
                 var user_col = userData['color'];
                 if (user_col == '') {
                     if (!user_undefined_colors[user]) {
@@ -488,6 +494,12 @@
                     }
 
                     user_col = user_undefined_colors[user];
+                }
+
+                var message_col = '';
+                if (message.indexOf('ACTION') == 0) {
+                    message_col = `color: ${user_col}`;
+                    message = message.substring(8, message.length-1);
                 }
 
                 //replace chat emote keywords with actual emote images
@@ -513,7 +525,7 @@
                     }
 
                     emoteList.sort((a, b) => b.start - a.start);
-                    console.log(emoteList);
+                   // console.log(emoteList);
 
                     for (var i in emoteList) {
                         console.log(i);
@@ -522,8 +534,8 @@
 
                 }
 
+                //get badges from channel list if it exists; if not, use global list
                 var badge_text = '';
-
                 if (userData['@badges'] != "") {
                     var badges = userData["@badges"].split(',');
 
@@ -537,9 +549,51 @@
                 }
     
 
-                var p = `<p>${badge_text} <span class="username" style="color: ${user_col}">${userData["display-name"]}</span>: ${message}`;
 
 
+                if (userData.bits) {
+
+                    var msgWords = message.toLowerCase().split(' ');
+                    var cheersFound = [];
+
+                    var cheerTest = /^([a-z]+)(\d+)$/;
+                    var cheerIdx = 0;
+                    
+
+                    for (i in msgWords) {
+                        if (cheerTest.test(msgWords[i])) {
+                            var cheerResult = cheerTest.exec(msgWords[i]);
+
+                            if (validEmotes.indexOf(cheerResult[1]) > -1) {
+                                var o = { prefix: cheerResult[1], level: 0 };
+                                for (j in cheerLevels) {
+                                    if (cheerResult[2] >= cheerLevels[j])
+                                        o.level = cheerLevels[j];
+                                    else
+                                        break;
+                                }
+
+                                cheersFound.push(o);
+                                
+                            }
+
+                        }
+                    }
+
+                    console.log(cheersFound);
+
+                }
+
+
+
+
+
+
+                //create the message html
+                var p = `<p>${badge_text} <span class="username" style="color: ${user_col}">${userData["display-name"]}</span>${message_col==''? " :" : ""} <span style="${message_col}">${message}</span>`;
+
+                //go through each module and append the message
+                //TODO: message filtering
                 $('.module .content').each(function () {
                     var el = $(this)[0],
                         scroll = false;
@@ -555,8 +609,6 @@
                         el.scrollTop = el.scrollHeight;
                 });
 
-
-                
             };
 
             client.onUsernotice = function (message) {
@@ -717,12 +769,6 @@
 
 
             
-            var _emoteReq,
-                validEmotes = [],
-                cheerLevels = [],
-                cheerURL = 'https://d3aqoihi2n8ty8.cloudfront.net/actions/{prefix}/light/animated/{tier}/1.5.gif',
-                cheers = {},
-                cheerSize = 42;
 
             function LoadCheerEmotes() {
 
