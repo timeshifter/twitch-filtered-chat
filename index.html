@@ -39,10 +39,10 @@
             height:100%;
         }
 
-            #wrapper .column .module {
-                height: 50%;
-                position: relative;
-            }
+        #wrapper .column .module {
+            height: 50%;
+            position: relative;
+        }
 
         .module.tl {
             border-right:1px solid #aaa;
@@ -60,6 +60,7 @@
 
         #wrapper .column .module.right {
             height: 100%;
+
         }
 
 
@@ -113,9 +114,8 @@
             overflow:auto;
         }
 
-        .module.full .settings {
-            max-height:37.4%;
-        }
+        
+
 
         .module.settings ul {
             margin-left:0.8em;
@@ -157,6 +157,9 @@
             display: block;
         }
 
+
+
+
         .module .content {
             padding:2.2em 0 0 0;
             height:100%;
@@ -184,6 +187,44 @@
             margin-right:3px;
         }
 
+        .module .content a {
+            color:#999;
+            text-decoration:none;
+        }
+
+        .module .content a:hover {
+            text-decoration:underline;
+        }
+
+
+        .module.full .settings {
+            max-height: 37.4%;
+        }
+
+        .module.full .content {
+            padding-bottom:6em;
+        }
+
+        #chat {
+            position:absolute;
+            width:100%;
+            bottom:0;
+            border-top:1px solid #666;
+            padding:10px;
+            height:6em;
+        }
+
+        #chat textarea {
+            display:block;
+            width:100%;
+            height:100%;
+            border:2px ridge #777;
+            background-color:#2e2e2e;
+            padding:4px;
+            color:#f0f0f0;
+            font-size:1em;
+        }
+
         #settings {
             color:#ddd;
             position:fixed;
@@ -208,6 +249,19 @@
             margin:0.5em 0;
         }
 
+        #settings ul li {
+            line-height:1.7em;
+        }
+
+        #settings ul li label {
+            display:inline-block;
+            width:100px;
+        }
+
+        #settings ul li input {
+            
+        }
+
         #settings footer {
             line-height:30px;
             padding-top:0.2em;
@@ -225,8 +279,8 @@
             cursor:pointer;
             top: 10px;
             right: 10px;
-            width: 30px;
-            height: 30px;
+            width: 24px;
+            height: 24px;
         }
 
         #settings_button:hover {
@@ -352,6 +406,9 @@
 
                 </div>
 
+                <div id="chat">
+                    <textarea id="txtChat" placeholder="Send a message"></textarea>
+                </div>
             </div>
         </div>
 
@@ -363,6 +420,14 @@
             <li>
                 <label>Channel:</label>
                 <input type="text" id="txtChannel"  />
+            </li>
+            <li>
+                <label>Nick:</label>
+                <input type="text" id="txtNick" />
+            </li>
+            <li>
+                <label>oauth:</label>
+                <input type="text" id="txtPass" />
             </li>
         </ul>
         <footer>
@@ -413,6 +478,9 @@
             , channelTimerId = -1 //delay for changing channel text box
             , channel_badges = {} //all channel-specific badges
             , user_undefined_colors = {} //list of users with no defined color, to store a randomly chosen color
+            , message_history = []
+            , message_history_length = 500
+            , debug=true
             ;
 
         var _emoteReq,
@@ -422,6 +490,21 @@
 
 
         (function () {
+
+            try {
+                var confStr = localStorage.getItem('config');
+                if (confStr) {
+                    var conf = JSON.parse(confStr);
+                    if (conf) {
+                        txtChannel.value = conf.Channel;
+                        txtNick.value = conf.Nick;
+                        txtPass.value = conf.Pass;
+                    }
+                }
+            }
+            catch{}
+            
+
             GetGlobalBadges();
             LoadCheerEmotes();
 
@@ -436,7 +519,17 @@
                 }
             }
 
-            $('#txtChannel').on('input', UpdateChannelTimer);
+            $('#txtChannel').on('input', function () {
+                txtNick.value = txtChannel.value;
+            });
+
+
+            $('#settings').on('input', 'input', UpdateChannelTimer)
+                .keyup(function (e) {
+                    if (e.keyCode == 13) {
+                        $('#settings_button').click();
+                    }
+                })
 
             $('#settings_button').click(function () {
                 if ($('#settings').is(':visible'))
@@ -469,15 +562,50 @@
                 }
             });
 
+            $('#txtChat').on('keyup', function (e) {
+                if (e.keyCode == 13) {
+                    client.SendMessage(txtChannel.value, txtChat.value);
+                    txtChat.value = '';
+                }
+            })
+
             InitClient();
         })();
 
 
+        function UpdateChannelTimer() {
+            clearTimeout(channelTimerId);
+            channelTimerId = setTimeout(UpdateChannel, 500);
+        }
+
+        function UpdateChannel() {
+            InitClient();
+            //client.LeaveChannels(client.Channels[0]);
+
+            //client.JoinChannels(txtChannel.value.toLowerCase());
+            localStorage.setItem('config', JSON.stringify({
+                Channel: txtChannel.value.toLowerCase(),
+                Nick: txtNick.value,
+                Pass: txtPass.value
+            })
+            );
+        }
 
         function InitClient() {
-            client = new TwitchClient({
-                Debug: false
-            });
+            if (txtNick.value.trim() != '' && txtPass.value.trim() != '') {
+                console.log('hi');
+                client = new TwitchClient({
+                    Nick: txtNick.value,
+                    Pass: txtPass.value,
+                    Channels: txtChannel.value,
+                    Debug: debug
+                });
+            }
+            else {
+                client = new TwitchClient({
+                    Debug: debug
+                });
+            }
 
             client.onRoomstate = function (channel, settings) {
                 //console.log(channel, settings['room-id']);
@@ -485,122 +613,14 @@
             };
 
 
-            client.onPrivmsg = function (user, channel, message, userData) {
+            client.onPrivmsg = function (user, channel, message, userData, rawMessage) {
 
-                //use specified color if there is one; if not, pick a random one from the defaults and store it
-                var user_col = userData['color'];
-                if (user_col == '') {
-                    if (!user_undefined_colors[user]) {
-                        user_undefined_colors[user] = GetRandomColor();
-                    }
+                if (message_history.length == message_history_length)
+                    message_history.shift();
 
-                    user_col = user_undefined_colors[user];
-                }
+                message_history.push(rawMessage);
 
-                var message_col = '';
-                if (message.indexOf('ACTION') == 0) {
-                    message_col = `color: ${user_col}`;
-                    message = message.substring(8, message.length - 1);
-                }
-
-                //replace chat emote keywords with actual emote images
-                if (userData.emotes != "") {
-
-                    var emoteParts = userData.emotes.split('/'),
-                        emoteList = [];
-
-                    for (var i in emoteParts) {
-
-                        var emoteId = emoteParts[i].split(':')[0], emoteStart, emoteEnd;
-                        var emoteLocations = emoteParts[i].split(':')[1].split(',');
-
-                        for (var l in emoteLocations) {
-
-                            emoteList.push({
-                                id: emoteId,
-                                start: parseInt(emoteLocations[l].split('-')[0], 10),
-                                end: parseInt(emoteLocations[l].split('-')[1], 10)
-                            });
-                        }
-                    }
-
-                    emoteList.sort((a, b) => b.start - a.start);
-
-                    for (var i in emoteList) {
-                        //console.log(i);
-                        message = message.substring(0, emoteList[i].start) + `<img src="https://static-cdn.jtvnw.net/emoticons/v1/${emoteList[i].id}/1.0" />` + message.substring(emoteList[i].end + 1);
-                    }
-                }
-
-
-
-                //get badges from channel list if it exists; if not, use global list
-                var badge_text = '';
-                if (userData['@badges'] != "") {
-                    var badges = userData["@badges"].split(',');
-
-                    for (i in badges) {
-                        if (channel_badges[badges[i]])
-                            badge_text += `<img src="${channel_badges[badges[i]]}" />`;
-                        else
-                            badge_text += `<img src="${global_badges[badges[i]]}" />`;
-                    }
-                    badge_text = '<span class="badges">' + badge_text + '</span>';
-                }
-
-
-
-                //bit parsing
-                if (userData.bits) {
-
-                    var cheerTest = /^([a-z]+)(\d+)$/;
-
-                    var msgWords = message.toLowerCase().split(' '),
-                        msg_out = '';
-
-                    for (i in msgWords) {
-                        if (cheerTest.test(msgWords[i])) {
-                            var cheerResult = cheerTest.exec(msgWords[i]);
-
-                            var prefix = '';
-
-                            for (c_i in valid_cheers) {
-                                if (c_i == cheerResult[1]) {
-                                    prefix = c_i;
-                                    break;
-                                }   
-                            }
-
-                            if (prefix != '') {
-                                var tier = 0,
-                                    col = '';
-
-                                for (j of valid_cheers[prefix]) {
-                                    if (cheerResult[2] >= j.bits) {
-                                        tier = j.bits;
-                                        col = j.color;
-                                    }
-                                    else {
-                                        break;
-                                    }
-                                }
-                                msg_out += `<span style="color:${col};font-weight:bold;"><img src="https://d3aqoihi2n8ty8.cloudfront.net/actions/${prefix}/dark/animated/${tier}/1.gif" /> ${cheerResult[2]}</span> `
-                            }
-                            else {
-                                msg_out += msgWords[i] + ' ';
-                            }
-                        }
-                        else {
-                            msg_out += msgWords[i] + ' ';
-                        }
-                    }
-                    message = msg_out;
-                }
-
-
-
-                //create the message html
-                var p = `<p>${badge_text} <span class="username" style="color: ${user_col}">${userData["display-name"]}</span>${message_col == '' ? ":" : ""} <span style="${message_col}">${message}</span>`;
+                var p = ParseMessage(message, userData);
 
                 //go through each module and append the message
                 //TODO: message filtering
@@ -621,31 +641,165 @@
             };
 
             client.onUsernotice = function (message) {
+                if (message_history.length == message_history_length)
+                    message_history.shift();
+
+                message_history.push(message);
+
+
+
                 //console.log(message);
             };
 
-            var ch = localStorage.getItem('channel');
-            if (ch) {
-                txtChannel.value = ch;
-                client.JoinChannels(ch);
+
+        }
+
+
+        function ParseMessage(message, userData) {
+
+            //use specified color if there is one; if not, pick a random one from the defaults and store it
+            var user_col = userData['color'];
+            if (user_col == '') {
+                if (!user_undefined_colors[user]) {
+                    user_undefined_colors[user] = GetRandomColor();
+                }
+
+                user_col = user_undefined_colors[user];
+            }
+
+            var message_col = '';
+            if (message.indexOf('ACTION') == 0) {
+                message_col = `color: ${user_col}`;
+                message = message.substring(8, message.length - 1);
+            }
+
+            //replace chat emote keywords with actual emote images
+            if (userData.emotes != "") {
+
+                var emoteParts = userData.emotes.split('/'),
+                    emoteList = [];
+
+                for (var i in emoteParts) {
+
+                    var emoteId = emoteParts[i].split(':')[0], emoteStart, emoteEnd;
+                    var emoteLocations = emoteParts[i].split(':')[1].split(',');
+
+                    for (var l in emoteLocations) {
+
+                        emoteList.push({
+                            id: emoteId,
+                            start: parseInt(emoteLocations[l].split('-')[0], 10),
+                            end: parseInt(emoteLocations[l].split('-')[1], 10)
+                        });
+                    }
+                }
+
+                emoteList.sort((a, b) => b.start - a.start);
+
+                for (var i in emoteList) {
+                    //console.log(i);
+                    message = message.substring(0, emoteList[i].start) + `<img src="https://static-cdn.jtvnw.net/emoticons/v1/${emoteList[i].id}/1.0" />` + message.substring(emoteList[i].end + 1);
+                }
             }
 
 
 
+            //get badges from channel list if it exists; if not, use global list
+            var badge_text = '';
+            if (userData['@badges'] != "") {
+                var badges = userData["@badges"].split(',');
+
+                for (i in badges) {
+                    if (channel_badges[badges[i]])
+                        badge_text += `<img src="${channel_badges[badges[i]]}" />`;
+                    else
+                        badge_text += `<img src="${global_badges[badges[i]]}" />`;
+                }
+                badge_text = '<span class="badges">' + badge_text + '</span>';
+            }
+
+
+
+            //bit parsing
+            if (userData.bits) {
+
+                var cheerTest = /^([a-z]+)(\d+)$/;
+
+                var msgWords = message.toLowerCase().split(' '),
+                    msg_out = '';
+
+                for (i in msgWords) {
+                    if (cheerTest.test(msgWords[i])) {
+                        var cheerResult = cheerTest.exec(msgWords[i]);
+
+                        var prefix = '';
+
+                        for (c_i in valid_cheers) {
+                            if (c_i == cheerResult[1]) {
+                                prefix = c_i;
+                                break;
+                            }
+                        }
+
+                        if (prefix != '') {
+                            var tier = 0,
+                                col = '';
+
+                            for (j of valid_cheers[prefix]) {
+                                if (cheerResult[2] >= j.bits) {
+                                    tier = j.bits;
+                                    col = j.color;
+                                }
+                                else {
+                                    break;
+                                }
+                            }
+                            msg_out += `<span style="color:${col};font-weight:bold;"><img src="https://d3aqoihi2n8ty8.cloudfront.net/actions/${prefix}/dark/animated/${tier}/1.gif" /> ${cheerResult[2]}</span> `
+                        }
+                        else {
+                            msg_out += msgWords[i] + ' ';
+                        }
+                    }
+                    else {
+                        msg_out += msgWords[i] + ' ';
+                    }
+                }
+                message = msg_out;
+            }
+
+
+            //link parsing
+            message = message + ' ';
+
+            var startIdx = 0, endIdx = 0;
+
+            while (startIdx > -1 && startIdx < (message.length - 1)) {
+
+                endIdx = message.indexOf(' ', startIdx + 1);
+
+                var word = message.substring(startIdx, endIdx).trim();
+
+                if (word.toLowerCase().indexOf('www') == 0 || word.toLowerCase().indexOf('http://') == 0 || word.toLowerCase().indexOf('https://') == 0) {
+
+                    var s = `<a target="_blank" href="${(word.toLowerCase().indexOf('http') != 0 ? 'https://' : '') + word}">${word}</a>`;
+                    message = message.substring(0, startIdx) + ' ' + s + message.substring(endIdx);
+                }
+
+                startIdx = message.indexOf(' ', startIdx + 1);
+            }
+
+            message = message.trim();
+
+
+
+            //create the message html
+            var p = `<p>${badge_text} <span class="username" style="color: ${user_col}">${userData["display-name"]}</span>${message_col == '' ? ":" : ""} <span style="${message_col}">${message}</span>`;
+
+            return p;
         }
 
 
-        function UpdateChannelTimer() {
-            clearTimeout(channelTimerId);
-            channelTimerId = setTimeout(UpdateChannel, 500);
-        }
 
-        function UpdateChannel() {
-            client.LeaveChannels(client.Channels);
-
-            client.JoinChannels(txtChannel.value.toLowerCase());
-            localStorage.setItem('channel', txtChannel.value.toLowerCase());
-        }
 
 
         function GetChannelBadges(channelId) {
