@@ -215,14 +215,19 @@
         }
 
         #chat textarea {
-            display:block;
-            width:100%;
-            height:100%;
-            border:2px ridge #777;
-            background-color:#2e2e2e;
-            padding:4px;
-            color:#f0f0f0;
-            font-size:1em;
+            display: block;
+            width: 100%;
+            height: 100%;
+            border: 2px ridge #444;
+            background-color: #1a1a1a;
+            padding: 4px;
+            color: #f0f0f0;
+            font-size: 1em;
+            transition: border linear 0.3s;
+        }
+
+        #chat textarea:focus {
+            border-color: #7d5bbe;
         }
 
         #settings {
@@ -299,7 +304,7 @@
 
     <div id="wrapper">
         <div class="column">
-            <div class="module tl">
+            <div class="module tl" id="p1">
                 <div class="header">
                     <div class="menu">
                         <div></div>
@@ -326,7 +331,7 @@
                     <p>Exclude:</p>
                     <ul>
                         <li class="textbox exclude_user"><label>From user:</label><input type="text" class="user" /></li>
-                        <li class="textbox exclude_keyword"><label>Starts with:</label><input type="text" class="keyword" /></li>
+                        <li class="textbox exclude_startswith"><label>Starts with:</label><input type="text" class="keyword" /></li>
                     </ul>
                 </div>
                 <div class="content">
@@ -336,7 +341,7 @@
             </div>
 
 
-            <div class="module bl">
+            <div class="module bl" id="p2">
                 <div class="header">
                     <div class="menu">
                         <div></div>
@@ -344,7 +349,7 @@
                         <div></div>
                     </div>
                     <label class="name">Panel 2</label>
-                    <input type="text" class="name" value="Panel 1" />
+                    <input type="text" class="name" value="Panel 2" />
                 </div>
                 <div class="settings">
                     <p>Include:</p>
@@ -361,7 +366,7 @@
                     <p>Exclude:</p>
                     <ul>
                         <li class="textbox exclude_user"><label>From user:</label><input type="text" class="user" /></li>
-                        <li class="textbox exclude_keyword"><label>Starts with:</label><input type="text" class="keyword" /></li>
+                        <li class="textbox exclude_startswith"><label>Starts with:</label><input type="text" class="keyword" /></li>
                     </ul>
                 </div>
 
@@ -373,15 +378,15 @@
         </div>
 
         <div class="column">
-            <div class="module right full">
+            <div class="module right full" id="p3">
                 <div class="header">
                     <div class="menu">
                         <div></div>
                         <div></div>
                         <div></div>
                     </div>
-                    <label class="name">Panel 3</label>
-                    <input type="text" class="name" value="Panel 1" />
+                    <label class="name">Full chat</label>
+                    <input type="text" class="name" value="Full chat" />
                 </div>
                 <div class="settings">
                     <p>Include:</p>
@@ -398,7 +403,7 @@
                     <p>Exclude:</p>
                     <ul>
                         <li class="textbox exclude_user"><label>From user:</label><input type="text" class="user" /></li>
-                        <li class="textbox exclude_keyword"><label>Starts with:</label><input type="text" class="keyword" /></li>
+                        <li class="textbox exclude_startswith"><label>Starts with:</label><input type="text" class="keyword" /></li>
                     </ul>
                 </div>
 
@@ -488,22 +493,89 @@
             cheerLevels = [],
             valid_cheers = [];
 
+        var config = {
+            Channel: '',
+            Nick: '',
+            Pass: ''
+        };
+
 
         (function () {
 
             try {
                 var confStr = localStorage.getItem('config');
                 if (confStr) {
-                    var conf = JSON.parse(confStr);
-                    if (conf) {
-                        txtChannel.value = conf.Channel;
-                        txtNick.value = conf.Nick;
-                        txtPass.value = conf.Pass;
+                    config = JSON.parse(confStr);
+                    if (config) {
+                        txtChannel.value = config.Channel;
+                        txtNick.value = config.Nick;
+                        txtPass.value = config.Pass;
                     }
                 }
             }
             catch{}
-            
+
+            $('.module').each(function () {
+                
+                
+                var id = $(this).attr('id');
+
+                if (!config[id])
+                    UpdateConfig($(this).attr('id'));
+                else {
+
+                    $(this).find('label.name').html(config[id].Name);
+                    $(this).find('input.name').val(config[id].Name);
+                    if (config[id].Pleb)
+                        $(this).find('input.pleb').attr('checked', 'checked');
+                    else
+                        $(this).find('input.pleb').removeAttr('checked');
+
+                    if (config[id].Sub)
+                        $(this).find('input.sub').attr('checked', 'checked');
+                    else
+                        $(this).find('input.sub').removeAttr('checked');
+
+                    if (config[id].Mod)
+                        $(this).find('input.mod').attr('checked', 'checked');
+                    else
+                        $(this).find('input.mod').removeAttr('checked');
+
+                    if (config[id].Event)
+                        $(this).find('input.event').attr('checked', 'checked');
+                    else
+                        $(this).find('input.event').removeAttr('checked');
+
+                    if (config[id].Bits)
+                        $(this).find('input.bits').attr('checked', 'checked');
+                    else
+                        $(this).find('input.bits').removeAttr('checked');
+
+
+                    for (s of config[id].IncludeUser) {
+                        var li = `<li><label><input type="checkbox" value="${s}" class="include_user" checked />From user: ${s}</label></li>`
+                        $(this).find('li.include_user').before(li);
+                    }
+
+                    for (s of config[id].IncludeKeyword) {
+                        var li = `<li><label><input type="checkbox" value="${s}" class="include_keyword" checked />Contains: ${s}</label></li>`
+                        $(this).find('li.include_keyword').before(li);
+                    }
+
+                    for (s of config[id].ExcludeUser) {
+                        var li = `<li><label><input type="checkbox" value="${s}" class="exclude_user" checked />From user: ${s}</label></li>`
+                        $(this).find('li.exclude_user').before(li);
+                    }
+
+                    for (s of config[id].ExcludeStartsWith) {
+                        var li = `<li><label><input type="checkbox" value="${s}" class="exclude_startswith" checked />Starts with: ${s}</label></li>`
+                        $(this).find('li.exclude_startswith').before(li);
+                    }
+                }
+            });
+
+
+           
 
             GetGlobalBadges();
             LoadCheerEmotes();
@@ -545,6 +617,11 @@
                 if ($(this).parent().hasClass('open')) {
                     $(this).parent().removeClass('open');
                     $lbl.html($tb.val());
+
+
+                    UpdateConfig($(this).closest('.module').attr('id'));
+
+
                 }
                 else {
                     $(this).parent().addClass('open');
@@ -554,7 +631,7 @@
 
             $('.module .settings input[type="text"]').on('keyup', function (e) {
                 if (e.keyCode == 13) {
-                    var cls = $(this).closest('li').attr('class').replace('textbox', '');
+                    var cls = $(this).closest('li').attr('class').replace('textbox', '').trim();
                     var $li = $(`<li><label><input type="checkbox" value="${$(this).val()}" class="${cls}" checked />${$(this).closest('li').find('label').html()} ${$(this).val()}</label></li>`);
                     $(this).closest('li').before($li);
                     $(this).val('');
@@ -582,13 +659,47 @@
             InitClient();
             //client.LeaveChannels(client.Channels[0]);
 
+            config.Channel = txtChannel.value.toLowerCase();
+            config.Nick = txtNick.value;
+            config.Pass = txtPass.value;
+              
+
             //client.JoinChannels(txtChannel.value.toLowerCase());
-            localStorage.setItem('config', JSON.stringify({
-                Channel: txtChannel.value.toLowerCase(),
-                Nick: txtNick.value,
-                Pass: txtPass.value
-            })
+            localStorage.setItem('config', JSON.stringify(config)
             );
+        }
+
+        function UpdateConfig(module) {
+            var $module = $('#' + module);
+
+            var o = {
+                Name: $module.find('label.name').html(),
+                Pleb: $module.find('input.pleb').is(':checked'),
+                Sub: $module.find('input.sub').is(':checked'),
+                Mod: $module.find('input.mod').is(':checked'),
+                Event: $module.find('input.event').is(':checked'),
+                Bits: $module.find('input.bits').is(':checked'),
+                IncludeUser: [],
+                IncludeKeyword: [],
+                ExcludeUser: [],
+                ExcludeStartsWith: []
+            };
+
+            $module.find('input.include_user:checked').each(function () {
+                o.IncludeUser.push($(this).val());
+            });
+            $module.find('input.include_keyword:checked').each(function () {
+                o.IncludeKeyword.push($(this).val());
+            });
+            $module.find('input.exclude_user:checked').each(function () {
+                o.ExcludeUser.push($(this).val());
+            });
+            $module.find('input.exclude_startswith:checked').each(function () {
+                o.ExcludeStartsWith.push($(this).val());
+            });
+            config[module] = o;
+
+            localStorage.setItem('config', JSON.stringify(config));
         }
 
         function InitClient() {
@@ -603,6 +714,7 @@
             }
             else {
                 client = new TwitchClient({
+                    Channels: txtChannel.value,
                     Debug: debug
                 });
             }
@@ -620,18 +732,57 @@
 
                 message_history.push(rawMessage);
 
-                var p = ParseMessage(message, userData);
+                var p = ParseMessage(user, message, userData);
 
                 //go through each module and append the message
                 //TODO: message filtering
-                $('.module .content').each(function () {
-                    var el = $(this)[0],
+                $('.module').each(function () {
+                    var id = $(this).attr('id');
+                    var $content = $(this).find('.content');
+
+                    var el = $content[0],
                         scroll = false;
 
                     if (el.clientHeight + el.scrollTop >= el.scrollHeight - 30)
                         scroll = true;
 
-                    $(this).append(p);
+                    var disp = false;
+
+                    //plebs
+                    if (config[id].Pleb && !userData['subscriber'])
+                        disp = true;
+
+                    //subs
+                    if (config[id].Sub && userData['subscriber'])
+                        disp = true;
+
+                    //mods
+                    if (config[id].Mod && userData['mod'])
+                        disp = true;
+
+                    for (s of config[id].IncludeUser) {
+                        if (user.toLowerCase() == s.toLowerCase())
+                            disp = true;
+                    }
+
+                    for (s of config[id].IncludeKeyword) {
+                        if (message.toLowerCase().indexOf(s.toLowerCase()) > -1)
+                            disp = true;
+                    }
+
+                    for (s of config[id].ExcludeUser) {
+                        if (user.toLowerCase() == s.toLowerCase())
+                            disp = false;
+                    }
+
+                    for (s of config[id].ExcludeStartsWith) {
+                        if (message.toLowerCase().indexOf(s.toLowerCase()) == 0)
+                            disp = false;
+                    }
+
+
+                    if (disp)
+                        $content.append(p);
 
 
                     if (scroll)
@@ -655,7 +806,7 @@
         }
 
 
-        function ParseMessage(message, userData) {
+        function ParseMessage(user, message, userData) {
 
             //use specified color if there is one; if not, pick a random one from the defaults and store it
             var user_col = userData['color'];
