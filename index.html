@@ -206,12 +206,13 @@
         }
 
         #chat {
-            position:absolute;
-            width:100%;
-            bottom:0;
-            border-top:1px solid #666;
-            padding:10px;
-            height:6em;
+            position: absolute;
+            width: 100%;
+            bottom: 0;
+            border-top: 1px solid #666;
+            padding: 10px;
+            height: 6em;
+            background-color: #0E0E0E;
         }
 
         #chat textarea {
@@ -758,6 +759,9 @@
 
                     //mods
                     if (config[id].Mod && userData['mod'])
+                        disp = true;
+
+                    if (config[id].Bits && userData['bits'])
                         disp = true;
 
                     for (s of config[id].IncludeUser) {
