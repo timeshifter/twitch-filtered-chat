@@ -729,6 +729,9 @@
 
             client.onPrivmsg = function (user, channel, message, userData, rawMessage) {
 
+                if (message_history[message_history.length - 1] == rawMessage)
+                    return;
+
                 if (message_history.length == message_history_length)
                     message_history.shift();
 
