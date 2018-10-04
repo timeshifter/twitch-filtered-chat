@@ -202,7 +202,7 @@
         }
 
         .module.full .content {
-            padding-bottom:6em;
+            height:calc(100% - 6em);
         }
 
         #chat {
@@ -593,7 +593,8 @@
             }
 
             $('#txtChannel').on('input', function () {
-                txtNick.value = txtChannel.value;
+                if (txtNick.value == '' || txtChannel.value.indexOf(txtNick.value) == 0)
+                    txtNick.value = txtChannel.value;
             });
 
 
@@ -666,8 +667,7 @@
               
 
             //client.JoinChannels(txtChannel.value.toLowerCase());
-            localStorage.setItem('config', JSON.stringify(config)
-            );
+            localStorage.setItem('config', JSON.stringify(config));
         }
 
         function UpdateConfig(module) {
@@ -704,8 +704,9 @@
         }
 
         function InitClient() {
+            client = null;
             if (txtNick.value.trim() != '' && txtPass.value.trim() != '') {
-                console.log('hi');
+                //console.log('hi');
                 client = new TwitchClient({
                     Nick: txtNick.value,
                     Pass: txtPass.value,
@@ -744,7 +745,7 @@
                     var el = $content[0],
                         scroll = false;
 
-                    if (el.clientHeight + el.scrollTop >= el.scrollHeight - 30)
+                    if (el.clientHeight + el.scrollTop >= el.scrollHeight - 100)
                         scroll = true;
 
                     var disp = false;
