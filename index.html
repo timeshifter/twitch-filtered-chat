@@ -832,7 +832,7 @@
                 message = message.substring(8, message.length - 1);
             }
 
-            message = message.replace('<', '&lt;').replace('>', '&gt');
+            message = message.replace(/</g, '&lt;').replace(/>/g, '&gt');
 
             //replace chat emote keywords with actual emote images
             if (userData.emotes != "") {
