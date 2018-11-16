@@ -500,6 +500,19 @@
             Pass: ''
         };
 
+        // TODO: actual CSS here please
+        // TODO: subscript, superscript, colors, animations
+        // TODO: steal colors from https://github.com/TASToys/Paint-By-Numbers/blob/master/index.html
+        // TODO: add a cost to each style
+        var valid_styles = {
+            marquee: ['<marquee>', '</marquee>'],
+            bold: ['<b>', '</b>'],
+            italic: ['<i>', '</i>'],
+            underline: ['<u>', '</u>'],
+            upsidedown: ['', ''],
+            inverted: ['', ''],
+            strikethrough: ['<s>', '</s>']
+        };
 
         (function () {
 
@@ -832,6 +845,18 @@
                 message = message.substring(8, message.length - 1);
             }
 
+            var message_pre = '';
+            var message_post = '';
+
+            // TODO: REMOVE AFTER TESTING
+            var cmdOverride = message.split(' ')[0];
+            if (cmdOverride in valid_styles) {
+                message_pre = valid_styles[cmdOverride][0];
+                message_post = valid_styles[cmdOverride][1];
+            }
+            console.log(`msg: ${cmdOverride} ${message_pre} ${message_post}`);
+            // TODO: REMOVE AFTER TESTING
+
             message = message.replace(/</g, '&lt;').replace(/>/g, '&gt');
 
             //replace chat emote keywords with actual emote images
@@ -915,6 +940,13 @@
                                     break;
                                 }
                             }
+
+                            //handle custom cheer formatting commands
+                            // TODO: multiple formatting words (cheer10 bold underline hi)
+                            if (i < (msgWords.length - 1) && msgWords[i+1] in valid_styles) {
+                                message_pre = valid_styles[msgWords[i+1]][0];
+                                message_post = valid_styles[msgWords[i+1]][1];
+                            }
                             msg_out += `<span style="color:${col};font-weight:bold;"><img src="https://d3aqoihi2n8ty8.cloudfront.net/actions/${prefix}/dark/animated/${tier}/1.gif" /> ${cheerResult[2]}</span> `
                         }
                         else {
@@ -952,9 +984,8 @@
             message = message.trim();
 
 
-
             //create the message html
-            var p = `<p>${badge_text} <span class="username" style="color: ${user_col}">${userData["display-name"]}</span>${message_col == '' ? ":" : ""} <span style="${message_col}">${message}</span>`;
+            var p = `<p>${badge_text} <span class="username" style="color: ${user_col}">${userData["display-name"]}</span>${message_col == '' ? ":" : ""} <span style="${message_col}">${message_pre}${message}${message_post}</span>`;
 
             return p;
         }
