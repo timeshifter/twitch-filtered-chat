@@ -832,7 +832,7 @@
                 message = message.substring(8, message.length - 1);
             }
 
-            message = message.replace(/</g, '&lt;').replace(/>/g, '&gt');
+            message = EscapeHtml(message);
 
             //replace chat emote keywords with actual emote images
             if (userData.emotes != "") {
@@ -1051,6 +1051,21 @@
                     //}
 
                 }
+            }
+            
+            /*
+            From https://stackoverflow.com/a/4835406/
+            */
+            function EscapeHtml(text) {
+                var map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+
+                return text.replace(/[&<>"']/g, function(m) { return map[m]; });
             }
 
             _emoteReq.open('GET', 'https://api.twitch.tv/kraken/bits/actions');
