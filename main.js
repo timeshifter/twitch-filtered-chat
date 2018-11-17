@@ -233,6 +233,13 @@ var config = {
   InitClient();
 })();
 
+function EscapeHtml(text) {
+  const div = document.createElement('div');
+  const textNode = document.createTextNode(text);
+  div.appendChild(textNode);
+  return div.innerHTML;
+}
+
 function UpdateChannelTimer() {
   clearTimeout(channelTimerId);
   channelTimerId = setTimeout(UpdateChannel, 500);
@@ -383,13 +390,13 @@ function ParseMessage(user, message, userData) {
     user_col = user_undefined_colors[user];
   }
 
+  message = EscapeHtml(message);
+
   var message_col = '';
   if (message.indexOf('ACTION') == 0) {
     message_col = `color: ${user_col}`;
     message = message.substring(8, message.length - 1);
   }
-
-  message = message.replace(/</g, '&lt;').replace(/>/g, '&gt');
 
   //replace chat emote keywords with actual emote images
   if (userData.emotes != '') {
