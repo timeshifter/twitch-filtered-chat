@@ -26,11 +26,11 @@
         body {
             background-color: #0E0E0E;
         }
-        
-        
+
+
 
         #wrapper {
-           
+
         }
 
         #wrapper .column {
@@ -114,7 +114,7 @@
             overflow:auto;
         }
 
-        
+
 
 
         .module.settings ul {
@@ -265,7 +265,7 @@
         }
 
         #settings ul li input {
-            
+
         }
 
         #settings footer {
@@ -517,8 +517,8 @@
             catch{}
 
             $('.module').each(function () {
-                
-                
+
+
                 var id = $(this).attr('id');
 
                 if (!config[id])
@@ -576,7 +576,7 @@
             });
 
 
-           
+
 
             GetGlobalBadges();
             LoadCheerEmotes();
@@ -664,7 +664,7 @@
             config.Channel = txtChannel.value.toLowerCase();
             config.Nick = txtNick.value;
             config.Pass = txtPass.value;
-              
+
 
             //client.JoinChannels(txtChannel.value.toLowerCase());
             localStorage.setItem('config', JSON.stringify(config));
