@@ -1,0 +1,285 @@
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  outline: 0;
+  list-style: none;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  font-size: 18px;
+  color: #ccc;
+}
+
+input {
+  padding: 2px;
+  font-size: 0.8em;
+}
+
+body {
+  background-color: #0e0e0e;
+}
+
+#wrapper {
+}
+
+#wrapper .column {
+  float: left;
+  width: 50%;
+  height: 100%;
+}
+
+#wrapper .column .module {
+  height: 50%;
+  position: relative;
+}
+
+.module.tl {
+  border-right: 1px solid #aaa;
+  border-bottom: 1px solid #aaa;
+  background-color: #202020;
+}
+
+.module.tl .header {
+  background-color: #2b2b2b;
+}
+
+.module.bl {
+  border-right: 1px solid #aaa;
+}
+
+#wrapper .column .module.right {
+  height: 100%;
+}
+
+#wrapper .column .module .header {
+  height: 2.2em;
+  line-height: 2em;
+  border-bottom: 2px ridge #666;
+  position: absolute;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background-color: #191919;
+}
+
+.menu {
+  display: inline-block;
+  width: 2em;
+  padding: 0.3em 0.3em;
+  cursor: pointer;
+}
+
+.menu div {
+  margin-top: 15%;
+  height: 3px;
+  border-radius: 2px;
+  background-color: #f0f0f0;
+}
+
+.module .header label {
+  vertical-align: top;
+}
+
+.module .header input.name {
+  display: none;
+  vertical-align: top;
+  margin-top: 0.2em;
+  font-size: 0.9em;
+}
+
+.module .settings {
+  position: absolute;
+  top: 2.2em;
+  background-color: #333;
+  width: 100%;
+  line-height: 1.5em;
+  padding: 0.5em;
+  border-bottom: 2px ridge #666;
+  display: none;
+  max-height: 75%;
+  overflow: auto;
+}
+
+.module.settings ul {
+  margin-left: 0.8em;
+}
+
+.module .settings ul li {
+  position: relative;
+}
+
+.module .settings input[type='checkbox'] {
+  margin-right: 4px;
+}
+
+.module .settings input[type='text'] {
+  display: inline-block;
+  padding: 1px;
+  width: 145px;
+}
+
+.module .settings .textbox {
+  padding-left: 17px;
+}
+
+.module .settings .textbox label {
+  width: 100px;
+  display: inline-block;
+}
+
+.module .header.open label {
+  display: none;
+}
+
+.module .header.open input.name {
+  display: inline-block;
+}
+
+.module .header.open ~ .settings {
+  display: block;
+}
+
+.module .content {
+  padding: 2.2em 0 0 0;
+  height: 100%;
+  overflow: auto;
+}
+
+.module .content p {
+  line-height: 1.3em;
+  padding: 4px;
+}
+
+.module .content p:nth-child(2n) {
+  background-color: #303030;
+}
+
+.module .content p .username {
+  font-weight: bold;
+}
+
+.module .content p img {
+  vertical-align: middle;
+}
+
+.module .content p span.badges img {
+  margin-right: 3px;
+}
+
+.module .content a {
+  color: #999;
+  text-decoration: none;
+}
+
+.module .content a:hover {
+  text-decoration: underline;
+}
+
+.module.full .settings {
+  max-height: 37.4%;
+}
+
+.module.full .content {
+  height: calc(100% - 6em);
+}
+
+#chat {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  border-top: 1px solid #666;
+  padding: 10px;
+  height: 6em;
+  background-color: #0e0e0e;
+}
+
+#chat textarea {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 2px ridge #444;
+  background-color: #1a1a1a;
+  padding: 4px;
+  color: #f0f0f0;
+  font-size: 1em;
+  transition: border linear 0.3s;
+}
+
+#chat textarea:focus {
+  border-color: #7d5bbe;
+}
+
+#settings {
+  color: #ddd;
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  display: none;
+  background-color: #555;
+  padding: 10px;
+  border-left: 1px solid #888;
+  border-bottom: 1px solid #888;
+}
+
+#settings header {
+  line-height: 30px;
+  font-size: 1.5em;
+  padding-bottom: 0.2em;
+  border-bottom: solid 1px #aaa;
+}
+
+#settings ul {
+  margin: 0.5em 0;
+}
+
+#settings ul li {
+  line-height: 1.7em;
+}
+
+#settings ul li label {
+  display: inline-block;
+  width: 100px;
+}
+
+#settings ul li input {
+}
+
+#settings footer {
+  line-height: 30px;
+  padding-top: 0.2em;
+  border-top: solid 1px #aaa;
+}
+
+#settings footer a {
+  cursor: pointer;
+}
+
+#settings_button {
+  position: fixed;
+  opacity: 0.5;
+  transition: opacity 0.5s;
+  cursor: pointer;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+}
+
+#settings_button:hover {
+  opacity: 1;
+}
+
+@media screen and (min-width: 400px) {
+  #settings {
+    width: 400px;
+    border-bottom-left-radius: 6px;
+  }
+}

@@ -1,1071 +1,242 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head>
+  <head>
     <title></title>
-    <style>
-        *, *:before, *:after {
-            box-sizing:border-box;
-            margin:0;
-            padding:0;
-            outline:0;
-            list-style:none;
-            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            font-size: 18px;
-            color: #ccc;
-        }
-
-        input {
-            padding:2px;
-            font-size:0.8em;
-        }
-
-        body {
-            background-color: #0E0E0E;
-        }
-
-
-
-        #wrapper {
-
-        }
-
-        #wrapper .column {
-            float:left;
-            width:50%;
-            height:100%;
-        }
-
-        #wrapper .column .module {
-            height: 50%;
-            position: relative;
-        }
-
-        .module.tl {
-            border-right:1px solid #aaa;
-            border-bottom:1px solid #aaa;
-            background-color:#202020;
-        }
-
-        .module.tl .header {
-            background-color:#2b2b2b;
-        }
-
-        .module.bl {
-            border-right:1px solid #aaa;
-        }
-
-        #wrapper .column .module.right {
-            height: 100%;
-
-        }
-
-
-
-        #wrapper .column .module .header {
-            height: 2.2em;
-            line-height: 2em;
-            border-bottom: 2px ridge #666;
-            position: absolute;
-            width: 100%;
-            top: 0;
-            left: 0;
-            background-color: #191919;
-        }
-
-        .menu {
-            display:inline-block;
-            width:2em;
-            padding:0.3em 0.3em;
-            cursor:pointer;
-        }
-
-        .menu div {
-            margin-top:15%;
-            height:3px;
-            border-radius:2px;
-            background-color:#f0f0f0;
-        }
-
-        .module .header label {
-            vertical-align:top;
-        }
-
-        .module .header input.name {
-            display:none;
-            vertical-align:top;
-            margin-top:0.2em;
-            font-size:0.9em;
-        }
-
-        .module .settings {
-            position:absolute;
-            top:2.2em;
-            background-color:#333;
-            width:100%;
-            line-height:1.5em;
-            padding:0.5em;
-            border-bottom:2px ridge #666;
-            display:none;
-            max-height:75%;
-            overflow:auto;
-        }
-
-
-
-
-        .module.settings ul {
-            margin-left:0.8em;
-        }
-
-        .module .settings ul li {
-            position:relative;
-        }
-
-        .module .settings input[type="checkbox"] {
-            margin-right:4px;
-        }
-
-        .module .settings input[type="text"]{
-            display:inline-block;
-            padding:1px;
-            width:145px;
-        }
-
-        .module  .settings .textbox {
-            padding-left:17px;
-        }
-
-        .module .settings .textbox label {
-            width:100px;
-            display:inline-block;
-        }
-
-
-        .module .header.open label {
-            display: none;
-        }
-
-        .module .header.open input.name {
-            display: inline-block;
-        }
-
-        .module .header.open ~ .settings {
-            display: block;
-        }
-
-
-
-
-        .module .content {
-            padding:2.2em 0 0 0;
-            height:100%;
-            overflow:auto;
-        }
-
-        .module .content p {
-            line-height:1.3em;
-            padding:4px;
-        }
-
-        .module .content p:nth-child(2n) {
-            background-color:#303030;
-        }
-
-        .module .content p .username {
-            font-weight:bold;
-        }
-
-        .module .content p img {
-            vertical-align:middle;
-        }
-
-        .module .content p span.badges img {
-            margin-right:3px;
-        }
-
-        .module .content a {
-            color:#999;
-            text-decoration:none;
-        }
-
-        .module .content a:hover {
-            text-decoration:underline;
-        }
-
-
-        .module.full .settings {
-            max-height: 37.4%;
-        }
-
-        .module.full .content {
-            height:calc(100% - 6em);
-        }
-
-        #chat {
-            position: absolute;
-            width: 100%;
-            bottom: 0;
-            border-top: 1px solid #666;
-            padding: 10px;
-            height: 6em;
-            background-color: #0E0E0E;
-        }
-
-        #chat textarea {
-            display: block;
-            width: 100%;
-            height: 100%;
-            border: 2px ridge #444;
-            background-color: #1a1a1a;
-            padding: 4px;
-            color: #f0f0f0;
-            font-size: 1em;
-            transition: border linear 0.3s;
-        }
-
-        #chat textarea:focus {
-            border-color: #7d5bbe;
-        }
-
-        #settings {
-            color:#ddd;
-            position:fixed;
-            top:0;
-            right:0;
-            width:100%;
-            display:none;
-            background-color:#555;
-            padding:10px;
-            border-left:1px solid #888;
-            border-bottom:1px solid #888;
-        }
-
-        #settings header {
-            line-height:30px;
-            font-size:1.5em;
-            padding-bottom:0.2em;
-            border-bottom:solid 1px #aaa;
-        }
-
-        #settings ul {
-            margin:0.5em 0;
-        }
-
-        #settings ul li {
-            line-height:1.7em;
-        }
-
-        #settings ul li label {
-            display:inline-block;
-            width:100px;
-        }
-
-        #settings ul li input {
-
-        }
-
-        #settings footer {
-            line-height:30px;
-            padding-top:0.2em;
-            border-top:solid 1px #aaa;
-        }
-
-        #settings footer a {
-            cursor:pointer;
-        }
-
-        #settings_button {
-            position: fixed;
-            opacity: 0.5;
-            transition: opacity 0.5s;
-            cursor:pointer;
-            top: 10px;
-            right: 10px;
-            width: 24px;
-            height: 24px;
-        }
-
-        #settings_button:hover {
-            opacity: 1.0;
-        }
-
-        @media screen and (min-width:400px) {
-            #settings {
-                width: 400px;
-                border-bottom-left-radius: 6px;
-            }
-        }
-    </style>
-</head>
-<body>
-
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+  </head>
+  <body>
     <div id="wrapper">
-        <div class="column">
-            <div class="module tl" id="p1">
-                <div class="header">
-                    <div class="menu">
-                        <div></div>
-                        <div></div>
-                        <div></div>
-                    </div>
-                    <label class="name">Panel 1</label>
-                    <input type="text" class="name" value="Panel 1" />
-
-
-                </div>
-                <div class="settings">
-                    <p>Include:</p>
-                    <ul class="include">
-                        <li><label><input type="checkbox" class="pleb" checked />Non-subs</label></li>
-                        <li><label><input type="checkbox" class="sub" checked />Subscribers</label></li>
-                        <li><label><input type="checkbox" class="mod" checked />Moderators</label></li>
-                        <li><label><input type="checkbox" class="event" checked />Channel events</label></li>
-                        <li><label><input type="checkbox" class="bits" checked />Bit messages</label></li>
-                        <li class="textbox include_user"><label>From user:</label><input type="text" class="user" /></li>
-                        <li class="textbox include_keyword"><label>Contains:</label><input type="text" class="keyword" /></li>
-
-                    </ul>
-                    <p>Exclude:</p>
-                    <ul>
-                        <li class="textbox exclude_user"><label>From user:</label><input type="text" class="user" /></li>
-                        <li class="textbox exclude_startswith"><label>Starts with:</label><input type="text" class="keyword" /></li>
-                    </ul>
-                </div>
-                <div class="content">
-
-                </div>
-
+      <div class="column">
+        <div class="module tl" id="p1">
+          <div class="header">
+            <div class="menu">
+              <div></div>
+              <div></div>
+              <div></div>
             </div>
-
-
-            <div class="module bl" id="p2">
-                <div class="header">
-                    <div class="menu">
-                        <div></div>
-                        <div></div>
-                        <div></div>
-                    </div>
-                    <label class="name">Panel 2</label>
-                    <input type="text" class="name" value="Panel 2" />
-                </div>
-                <div class="settings">
-                    <p>Include:</p>
-                    <ul class="include">
-                        <li><label><input type="checkbox" class="pleb" checked />Non-subs</label></li>
-                        <li><label><input type="checkbox" class="sub" checked />Subscribers</label></li>
-                        <li><label><input type="checkbox" class="mod" checked />Moderators</label></li>
-                        <li><label><input type="checkbox" class="event" checked />Channel events</label></li>
-                        <li><label><input type="checkbox" class="bits" checked />Bit messages</label></li>
-                        <li class="textbox include_user"><label>From user:</label><input type="text" class="user" /></li>
-                        <li class="textbox include_keyword"><label>Contains:</label><input type="text" class="keyword" /></li>
-
-                    </ul>
-                    <p>Exclude:</p>
-                    <ul>
-                        <li class="textbox exclude_user"><label>From user:</label><input type="text" class="user" /></li>
-                        <li class="textbox exclude_startswith"><label>Starts with:</label><input type="text" class="keyword" /></li>
-                    </ul>
-                </div>
-
-                <div class="content">
-
-                </div>
-
-            </div>
+            <label class="name">Panel 1</label>
+            <input type="text" class="name" value="Panel 1" />
+          </div>
+          <div class="settings">
+            <p>Include:</p>
+            <ul class="include">
+              <li>
+                <label
+                  ><input type="checkbox" class="pleb" checked />Non-subs</label
+                >
+              </li>
+              <li>
+                <label
+                  ><input
+                    type="checkbox"
+                    class="sub"
+                    checked
+                  />Subscribers</label
+                >
+              </li>
+              <li>
+                <label
+                  ><input
+                    type="checkbox"
+                    class="mod"
+                    checked
+                  />Moderators</label
+                >
+              </li>
+              <li>
+                <label
+                  ><input type="checkbox" class="event" checked />Channel
+                  events</label
+                >
+              </li>
+              <li>
+                <label
+                  ><input type="checkbox" class="bits" checked />Bit
+                  messages</label
+                >
+              </li>
+              <li class="textbox include_user">
+                <label>From user:</label><input type="text" class="user" />
+              </li>
+              <li class="textbox include_keyword">
+                <label>Contains:</label><input type="text" class="keyword" />
+              </li>
+            </ul>
+            <p>Exclude:</p>
+            <ul>
+              <li class="textbox exclude_user">
+                <label>From user:</label><input type="text" class="user" />
+              </li>
+              <li class="textbox exclude_startswith">
+                <label>Starts with:</label><input type="text" class="keyword" />
+              </li>
+            </ul>
+          </div>
+          <div class="content"></div>
         </div>
 
-        <div class="column">
-            <div class="module right full" id="p3">
-                <div class="header">
-                    <div class="menu">
-                        <div></div>
-                        <div></div>
-                        <div></div>
-                    </div>
-                    <label class="name">Full chat</label>
-                    <input type="text" class="name" value="Full chat" />
-                </div>
-                <div class="settings">
-                    <p>Include:</p>
-                    <ul class="include">
-                        <li><label><input type="checkbox" class="pleb" checked />Non-subs</label></li>
-                        <li><label><input type="checkbox" class="sub" checked />Subscribers</label></li>
-                        <li><label><input type="checkbox" class="mod" checked />Moderators</label></li>
-                        <li><label><input type="checkbox" class="event" checked />Channel events</label></li>
-                        <li><label><input type="checkbox" class="bits" checked />Bit messages</label></li>
-                        <li class="textbox include_user"><label>From user:</label><input type="text" class="user" /></li>
-                        <li class="textbox include_keyword"><label>Contains:</label><input type="text" class="keyword" /></li>
-
-                    </ul>
-                    <p>Exclude:</p>
-                    <ul>
-                        <li class="textbox exclude_user"><label>From user:</label><input type="text" class="user" /></li>
-                        <li class="textbox exclude_startswith"><label>Starts with:</label><input type="text" class="keyword" /></li>
-                    </ul>
-                </div>
-
-                <div class="content">
-
-                </div>
-
-                <div id="chat">
-                    <textarea id="txtChat" placeholder="Send a message"></textarea>
-                </div>
+        <div class="module bl" id="p2">
+          <div class="header">
+            <div class="menu">
+              <div></div>
+              <div></div>
+              <div></div>
             </div>
-        </div>
+            <label class="name">Panel 2</label>
+            <input type="text" class="name" value="Panel 2" />
+          </div>
+          <div class="settings">
+            <p>Include:</p>
+            <ul class="include">
+              <li>
+                <label
+                  ><input type="checkbox" class="pleb" checked />Non-subs</label
+                >
+              </li>
+              <li>
+                <label
+                  ><input
+                    type="checkbox"
+                    class="sub"
+                    checked
+                  />Subscribers</label
+                >
+              </li>
+              <li>
+                <label
+                  ><input
+                    type="checkbox"
+                    class="mod"
+                    checked
+                  />Moderators</label
+                >
+              </li>
+              <li>
+                <label
+                  ><input type="checkbox" class="event" checked />Channel
+                  events</label
+                >
+              </li>
+              <li>
+                <label
+                  ><input type="checkbox" class="bits" checked />Bit
+                  messages</label
+                >
+              </li>
+              <li class="textbox include_user">
+                <label>From user:</label><input type="text" class="user" />
+              </li>
+              <li class="textbox include_keyword">
+                <label>Contains:</label><input type="text" class="keyword" />
+              </li>
+            </ul>
+            <p>Exclude:</p>
+            <ul>
+              <li class="textbox exclude_user">
+                <label>From user:</label><input type="text" class="user" />
+              </li>
+              <li class="textbox exclude_startswith">
+                <label>Starts with:</label><input type="text" class="keyword" />
+              </li>
+            </ul>
+          </div>
 
+          <div class="content"></div>
+        </div>
+      </div>
+
+      <div class="column">
+        <div class="module right full" id="p3">
+          <div class="header">
+            <div class="menu">
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+            <label class="name">Full chat</label>
+            <input type="text" class="name" value="Full chat" />
+          </div>
+          <div class="settings">
+            <p>Include:</p>
+            <ul class="include">
+              <li>
+                <label
+                  ><input type="checkbox" class="pleb" checked />Non-subs</label
+                >
+              </li>
+              <li>
+                <label
+                  ><input
+                    type="checkbox"
+                    class="sub"
+                    checked
+                  />Subscribers</label
+                >
+              </li>
+              <li>
+                <label
+                  ><input
+                    type="checkbox"
+                    class="mod"
+                    checked
+                  />Moderators</label
+                >
+              </li>
+              <li>
+                <label
+                  ><input type="checkbox" class="event" checked />Channel
+                  events</label
+                >
+              </li>
+              <li>
+                <label
+                  ><input type="checkbox" class="bits" checked />Bit
+                  messages</label
+                >
+              </li>
+              <li class="textbox include_user">
+                <label>From user:</label><input type="text" class="user" />
+              </li>
+              <li class="textbox include_keyword">
+                <label>Contains:</label><input type="text" class="keyword" />
+              </li>
+            </ul>
+            <p>Exclude:</p>
+            <ul>
+              <li class="textbox exclude_user">
+                <label>From user:</label><input type="text" class="user" />
+              </li>
+              <li class="textbox exclude_startswith">
+                <label>Starts with:</label><input type="text" class="keyword" />
+              </li>
+            </ul>
+          </div>
+
+          <div class="content"></div>
+
+          <div id="chat">
+            <textarea id="txtChat" placeholder="Send a message"></textarea>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div id="settings">
-        <header>Settings</header>
-        <ul>
-            <li>
-                <label>Channel:</label>
-                <input type="text" id="txtChannel"  />
-            </li>
-            <li>
-                <label>Nick:</label>
-                <input type="text" id="txtNick" />
-            </li>
-            <li>
-                <label>oauth:</label>
-                <input type="text" id="txtPass" />
-            </li>
-        </ul>
-        <footer>
-            <a onclick="$('#settings_button').click();">Close</a>
-        </footer>
+      <header>Settings</header>
+      <ul>
+        <li><label>Channel:</label> <input type="text" id="txtChannel" /></li>
+        <li><label>Nick:</label> <input type="text" id="txtNick" /></li>
+        <li><label>oauth:</label> <input type="text" id="txtPass" /></li>
+      </ul>
+      <footer><a onclick="$('#settings_button').click();">Close</a></footer>
     </div>
 
     <img id="settings_button" src="settings_white.png" />
 
-
-
-
-
-
-
-
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://timeshifter.github.io/twitch-events/twitch-events.js"></script>
-    <!--<script src="http://localhost/twitch-events/twitch-events.js"></script>-->
-
-    <script>
-
-        var default_colors = [
-            '#0000FF',
-            '#008000',
-            '#FF0000',
-            '#B22222',
-            '#FF7F50',
-            '#9ACD32',
-            '#FF4500',
-            '#2E8B57',
-            '#DAA520',
-            '#D2691E',
-            '#5F9EA0',
-            '#1E90FF',
-            '#FF69B4',
-            '#8A2BE2',
-            '#00FF7F'
-        ];
-
-        function GetRandomColor() {
-            return default_colors[Math.floor(Math.random() * default_colors.length)];
-        }
-
-        var client //twitch irc client
-            , queryList = {} //query string params
-            , global_badges = {} //all global badges
-            , channelTimerId = -1 //delay for changing channel text box
-            , channel_badges = {} //all channel-specific badges
-            , user_undefined_colors = {} //list of users with no defined color, to store a randomly chosen color
-            , message_history = []
-            , message_history_length = 500
-            , debug=true
-            ;
-
-        var _emoteReq,
-            validEmotes = [],
-            cheerLevels = [],
-            valid_cheers = [];
-
-        var config = {
-            Channel: '',
-            Nick: '',
-            Pass: ''
-        };
-
-
-        (function () {
-
-            try {
-                var confStr = localStorage.getItem('config');
-                if (confStr) {
-                    config = JSON.parse(confStr);
-                    if (config) {
-                        txtChannel.value = config.Channel;
-                        txtNick.value = config.Nick;
-                        txtPass.value = config.Pass;
-                    }
-                }
-            }
-            catch{}
-
-            $('.module').each(function () {
-
-
-                var id = $(this).attr('id');
-
-                if (!config[id])
-                    UpdateConfig($(this).attr('id'));
-                else {
-
-                    $(this).find('label.name').html(config[id].Name);
-                    $(this).find('input.name').val(config[id].Name);
-                    if (config[id].Pleb)
-                        $(this).find('input.pleb').attr('checked', 'checked');
-                    else
-                        $(this).find('input.pleb').removeAttr('checked');
-
-                    if (config[id].Sub)
-                        $(this).find('input.sub').attr('checked', 'checked');
-                    else
-                        $(this).find('input.sub').removeAttr('checked');
-
-                    if (config[id].Mod)
-                        $(this).find('input.mod').attr('checked', 'checked');
-                    else
-                        $(this).find('input.mod').removeAttr('checked');
-
-                    if (config[id].Event)
-                        $(this).find('input.event').attr('checked', 'checked');
-                    else
-                        $(this).find('input.event').removeAttr('checked');
-
-                    if (config[id].Bits)
-                        $(this).find('input.bits').attr('checked', 'checked');
-                    else
-                        $(this).find('input.bits').removeAttr('checked');
-
-
-                    for (s of config[id].IncludeUser) {
-                        var li = `<li><label><input type="checkbox" value="${s}" class="include_user" checked />From user: ${s}</label></li>`
-                        $(this).find('li.include_user').before(li);
-                    }
-
-                    for (s of config[id].IncludeKeyword) {
-                        var li = `<li><label><input type="checkbox" value="${s}" class="include_keyword" checked />Contains: ${s}</label></li>`
-                        $(this).find('li.include_keyword').before(li);
-                    }
-
-                    for (s of config[id].ExcludeUser) {
-                        var li = `<li><label><input type="checkbox" value="${s}" class="exclude_user" checked />From user: ${s}</label></li>`
-                        $(this).find('li.exclude_user').before(li);
-                    }
-
-                    for (s of config[id].ExcludeStartsWith) {
-                        var li = `<li><label><input type="checkbox" value="${s}" class="exclude_startswith" checked />Starts with: ${s}</label></li>`
-                        $(this).find('li.exclude_startswith').before(li);
-                    }
-                }
-            });
-
-
-
-
-            GetGlobalBadges();
-            LoadCheerEmotes();
-
-            //create queryList array
-            if (window.location.search) {
-                var query = window.location.search;
-                var queryParts = query.substring(1).split('&');
-                for (var i = 0; i < queryParts.length; i++) {
-                    var parts = queryParts[i].split('=');
-                    queryList[parts[0].trim()] = parts[1].trim();
-
-                }
-            }
-
-            $('#txtChannel').on('input', function () {
-                if (txtNick.value == '' || txtChannel.value.indexOf(txtNick.value) == 0)
-                    txtNick.value = txtChannel.value;
-            });
-
-
-            $('#settings').on('input', 'input', UpdateChannelTimer)
-                .keyup(function (e) {
-                    if (e.keyCode == 13) {
-                        $('#settings_button').click();
-                    }
-                })
-
-            $('#settings_button').click(function () {
-                if ($('#settings').is(':visible'))
-                    $('#settings').fadeOut();
-                else
-                    $('#settings').fadeIn();
-            });
-
-            $('.menu').click(function () {
-                var $lbl = $(this).parent().children('label'),
-                    $tb = $(this).parent().children('input');
-
-                if ($(this).parent().hasClass('open')) {
-                    $(this).parent().removeClass('open');
-                    $lbl.html($tb.val());
-
-
-                    UpdateConfig($(this).closest('.module').attr('id'));
-
-
-                }
-                else {
-                    $(this).parent().addClass('open');
-                    $tb.val($lbl.html());
-                }
-            });
-
-            $('.module .settings input[type="text"]').on('keyup', function (e) {
-                if (e.keyCode == 13) {
-                    var cls = $(this).closest('li').attr('class').replace('textbox', '').trim();
-                    var $li = $(`<li><label><input type="checkbox" value="${$(this).val()}" class="${cls}" checked />${$(this).closest('li').find('label').html()} ${$(this).val()}</label></li>`);
-                    $(this).closest('li').before($li);
-                    $(this).val('');
-
-                }
-            });
-
-            $('#txtChat').on('keyup', function (e) {
-                if (e.keyCode == 13) {
-                    client.SendMessage(txtChannel.value, txtChat.value);
-                    txtChat.value = '';
-                }
-            })
-
-            InitClient();
-        })();
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            const textNode = document.createTextNode(text);
-            div.appendChild(textNode);
-            return div.innerHTML;
-        }
-
-
-        function UpdateChannelTimer() {
-            clearTimeout(channelTimerId);
-            channelTimerId = setTimeout(UpdateChannel, 500);
-        }
-
-        function UpdateChannel() {
-            InitClient();
-            //client.LeaveChannels(client.Channels[0]);
-
-            config.Channel = txtChannel.value.toLowerCase();
-            config.Nick = txtNick.value;
-            config.Pass = txtPass.value;
-
-
-            //client.JoinChannels(txtChannel.value.toLowerCase());
-            localStorage.setItem('config', JSON.stringify(config));
-        }
-
-        function UpdateConfig(module) {
-            var $module = $('#' + module);
-
-            var o = {
-                Name: $module.find('label.name').html(),
-                Pleb: $module.find('input.pleb').is(':checked'),
-                Sub: $module.find('input.sub').is(':checked'),
-                Mod: $module.find('input.mod').is(':checked'),
-                Event: $module.find('input.event').is(':checked'),
-                Bits: $module.find('input.bits').is(':checked'),
-                IncludeUser: [],
-                IncludeKeyword: [],
-                ExcludeUser: [],
-                ExcludeStartsWith: []
-            };
-
-            $module.find('input.include_user:checked').each(function () {
-                o.IncludeUser.push($(this).val());
-            });
-            $module.find('input.include_keyword:checked').each(function () {
-                o.IncludeKeyword.push($(this).val());
-            });
-            $module.find('input.exclude_user:checked').each(function () {
-                o.ExcludeUser.push($(this).val());
-            });
-            $module.find('input.exclude_startswith:checked').each(function () {
-                o.ExcludeStartsWith.push($(this).val());
-            });
-            config[module] = o;
-
-            localStorage.setItem('config', JSON.stringify(config));
-        }
-
-        function InitClient() {
-            client = null;
-            if (txtNick.value.trim() != '' && txtPass.value.trim() != '') {
-                //console.log('hi');
-                client = new TwitchClient({
-                    Nick: txtNick.value,
-                    Pass: txtPass.value,
-                    Channels: txtChannel.value,
-                    Debug: debug
-                });
-            }
-            else {
-                client = new TwitchClient({
-                    Channels: txtChannel.value,
-                    Debug: debug
-                });
-            }
-
-            client.onRoomstate = function (channel, settings) {
-                //console.log(channel, settings['room-id']);
-                GetChannelBadges(settings['room-id']);
-            };
-
-
-            client.onPrivmsg = function (user, channel, message, userData, rawMessage) {
-
-                if (message_history[message_history.length - 1] == rawMessage)
-                    return;
-
-                if (message_history.length == message_history_length)
-                    message_history.shift();
-
-                message_history.push(rawMessage);
-
-                var p = ParseMessage(user, message, userData);
-
-                //go through each module and append the message
-                //TODO: message filtering
-                $('.module').each(function () {
-                    var id = $(this).attr('id');
-                    var $content = $(this).find('.content');
-
-                    var el = $content[0],
-                        scroll = false;
-
-                    if (el.clientHeight + el.scrollTop >= el.scrollHeight - 100)
-                        scroll = true;
-
-                    var disp = false;
-
-                    //plebs
-                    if (config[id].Pleb && !userData['subscriber'])
-                        disp = true;
-
-                    //subs
-                    if (config[id].Sub && userData['subscriber'])
-                        disp = true;
-
-                    //mods
-                    if (config[id].Mod && userData['mod'])
-                        disp = true;
-
-                    if (config[id].Bits && userData['bits'])
-                        disp = true;
-
-                    for (s of config[id].IncludeUser) {
-                        if (user.toLowerCase() == s.toLowerCase())
-                            disp = true;
-                    }
-
-                    for (s of config[id].IncludeKeyword) {
-                        if (message.toLowerCase().indexOf(s.toLowerCase()) > -1)
-                            disp = true;
-                    }
-
-                    for (s of config[id].ExcludeUser) {
-                        if (user.toLowerCase() == s.toLowerCase())
-                            disp = false;
-                    }
-
-                    for (s of config[id].ExcludeStartsWith) {
-                        if (message.toLowerCase().indexOf(s.toLowerCase()) == 0)
-                            disp = false;
-                    }
-
-
-                    if (disp)
-                        $content.append(p);
-
-
-                    if (scroll)
-                        el.scrollTop = el.scrollHeight;
-                });
-
-            };
-
-            client.onUsernotice = function (message) {
-                if (message_history.length == message_history_length)
-                    message_history.shift();
-
-                message_history.push(message);
-
-
-
-                //console.log(message);
-            };
-
-
-        }
-
-
-        function ParseMessage(user, message, userData) {
-
-            //use specified color if there is one; if not, pick a random one from the defaults and store it
-            var user_col = userData['color'];
-            if (user_col == '') {
-                if (!user_undefined_colors[user]) {
-                    user_undefined_colors[user] = GetRandomColor();
-                }
-
-                user_col = user_undefined_colors[user];
-            }
-
-            message = escapeHtml(message);
-
-            var message_col = '';
-            if (message.indexOf('ACTION') == 0) {
-                message_col = `color: ${user_col}`;
-                message = message.substring(8, message.length - 1);
-            }
-
-            //replace chat emote keywords with actual emote images
-            if (userData.emotes != "") {
-
-                var emoteParts = userData.emotes.split('/'),
-                    emoteList = [];
-
-                for (var i in emoteParts) {
-
-                    var emoteId = emoteParts[i].split(':')[0], emoteStart, emoteEnd;
-                    var emoteLocations = emoteParts[i].split(':')[1].split(',');
-
-                    for (var l in emoteLocations) {
-
-                        emoteList.push({
-                            id: emoteId,
-                            start: parseInt(emoteLocations[l].split('-')[0], 10),
-                            end: parseInt(emoteLocations[l].split('-')[1], 10)
-                        });
-                    }
-                }
-
-                emoteList.sort((a, b) => b.start - a.start);
-
-                for (var i in emoteList) {
-                    //console.log(i);
-                    message = message.substring(0, emoteList[i].start) + `<img src="https://static-cdn.jtvnw.net/emoticons/v1/${emoteList[i].id}/1.0" />` + message.substring(emoteList[i].end + 1);
-                }
-            }
-
-
-
-            //get badges from channel list if it exists; if not, use global list
-            var badge_text = '';
-            if (userData['@badges'] != "") {
-                var badges = userData["@badges"].split(',');
-
-                for (i in badges) {
-                    if (channel_badges[badges[i]])
-                        badge_text += `<img src="${channel_badges[badges[i]]}" />`;
-                    else
-                        badge_text += `<img src="${global_badges[badges[i]]}" />`;
-                }
-                badge_text = '<span class="badges">' + badge_text + '</span>';
-            }
-
-
-
-            //bit parsing
-            if (userData.bits) {
-
-                var cheerTest = /^([a-z]+)(\d+)$/;
-
-                var msgWords = message.toLowerCase().split(' '),
-                    msg_out = '';
-
-                for (i in msgWords) {
-                    if (cheerTest.test(msgWords[i])) {
-                        var cheerResult = cheerTest.exec(msgWords[i]);
-
-                        var prefix = '';
-
-                        for (c_i in valid_cheers) {
-                            if (c_i == cheerResult[1]) {
-                                prefix = c_i;
-                                break;
-                            }
-                        }
-
-                        if (prefix != '') {
-                            var tier = 0,
-                                col = '';
-
-                            for (j of valid_cheers[prefix]) {
-                                if (cheerResult[2] >= j.bits) {
-                                    tier = j.bits;
-                                    col = j.color;
-                                }
-                                else {
-                                    break;
-                                }
-                            }
-                            msg_out += `<span style="color:${col};font-weight:bold;"><img src="https://d3aqoihi2n8ty8.cloudfront.net/actions/${prefix}/dark/animated/${tier}/1.gif" /> ${cheerResult[2]}</span> `
-                        }
-                        else {
-                            msg_out += msgWords[i] + ' ';
-                        }
-                    }
-                    else {
-                        msg_out += msgWords[i] + ' ';
-                    }
-                }
-                message = msg_out;
-            }
-
-
-            //link parsing
-            message = message + ' ';
-
-            var startIdx = 0, endIdx = 0;
-
-            while (startIdx > -1 && startIdx < (message.length - 1)) {
-
-                endIdx = message.indexOf(' ', startIdx + 1);
-
-                var word = message.substring(startIdx, endIdx).trim();
-
-                if (word.toLowerCase().indexOf('www') == 0 || word.toLowerCase().indexOf('http://') == 0 || word.toLowerCase().indexOf('https://') == 0) {
-
-                    var s = `<a target="_blank" href="${(word.toLowerCase().indexOf('http') != 0 ? 'https://' : '') + word}">${word}</a>`;
-                    message = message.substring(0, startIdx) + ' ' + s + message.substring(endIdx);
-                }
-
-                startIdx = message.indexOf(' ', startIdx + 1);
-            }
-
-            message = message.trim();
-
-
-
-            //create the message html
-            var p = `<p>${badge_text} <span class="username" style="color: ${user_col}">${userData["display-name"]}</span>${message_col == '' ? ":" : ""} <span style="${message_col}">${message}</span>`;
-
-            return p;
-        }
-
-
-
-
-
-        function GetChannelBadges(channelId) {
-
-            var badge_req = new XMLHttpRequest();
-
-            badge_req.onreadystatechange = function () {
-
-                if (this.readyState == 4 && this.status === 200) {
-                    var json = JSON.parse(this.responseText);
-
-                    if (json.badge_sets.bits) {
-                        for (b in json.badge_sets.bits.versions) {
-                            channel_badges[`bits/${b}`] = json.badge_sets.bits.versions[b]["image_url_1x"];
-                        }
-                    }
-
-                    if (json.badge_sets.subscriber) {
-                        for (s in json.badge_sets.subscriber.versions) {
-                            channel_badges[`subscriber/${s}`] = json.badge_sets.subscriber.versions[s]["image_url_1x"];
-                        }
-                    }
-
-                }
-            }
-
-            badge_req.open('GET', `https://badges.twitch.tv/v1/badges/channels/${channelId}/display`);
-            badge_req.setRequestHeader('Accept', 'application/vnd.twitchtv.v5+json');
-            badge_req.send();
-
-        }
-
-
-        function GetGlobalBadges() {
-            var global_req = new XMLHttpRequest();
-
-            global_req.onreadystatechange = function () {
-
-                if (this.readyState == 4 && this.status === 200) {
-                    var json = JSON.parse(this.responseText);
-                    for (s in json.badge_sets) {
-
-                        for (v in json.badge_sets[s].versions) {
-                            global_badges[s + '/' + v] = json.badge_sets[s].versions[v]["image_url_1x"];
-                        }
-
-
-                    }
-                }
-            }
-
-            global_req.open('GET', 'https://badges.twitch.tv/v1/badges/global/display');
-            global_req.setRequestHeader('Accept', 'application/vnd.twitchtv.v5+json');
-            global_req.send();
-
-
-        }
-
-        var raw_cheer;
-
-        function LoadCheerEmotes() {
-
-            _emoteReq = new XMLHttpRequest();
-
-            _emoteReq.onreadystatechange = function () {
-
-                if (this.readyState == 4 && this.status === 200) {
-                    var json = JSON.parse(this.responseText);
-
-                    raw_cheer = json;
-
-                    validEmotes = [];
-                    cheerLevels = [];
-
-                    for (i in json.actions) {
-
-                        valid_cheers[json.actions[i].prefix.toLowerCase()] = [];
-                        for (t in json.actions[i].tiers) {
-                            valid_cheers[json.actions[i].prefix.toLowerCase()].push({
-                                bits: json.actions[i].tiers[t].min_bits,
-                                color: json.actions[i].tiers[t].color
-                            });
-                        }
-                    }
-
-                    //for (i in json.actions[0].tiers) {
-                    //    cheerLevels.push(json.actions[0].tiers[i].min_bits);
-                    //}
-
-                }
-            }
-
-            _emoteReq.open('GET', 'https://api.twitch.tv/kraken/bits/actions');
-            _emoteReq.setRequestHeader('Accept', 'application/vnd.twitchtv.v5+json');
-            _emoteReq.setRequestHeader('Client-ID', 'dcirpjuzebyjmxvjyj30x6pybo8nx9');
-            _emoteReq.send();
-        }
-
-    </script>
-</body>
+    <script defer src="main.js"></script>
+    <!--
+      <script src="http://localhost/twitch-events/twitch-events.js"></script>
+    -->
+  </body>
 </html>
