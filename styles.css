@@ -6,7 +6,7 @@
   padding: 0;
   outline: 0;
   list-style: none;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 html,
@@ -27,6 +27,7 @@ body {
 }
 
 #wrapper {
+  height: 100%;
 }
 
 #wrapper .column {
@@ -115,11 +116,11 @@ body {
   position: relative;
 }
 
-.module .settings input[type='checkbox'] {
+.module .settings input[type="checkbox"] {
   margin-right: 4px;
 }
 
-.module .settings input[type='text'] {
+.module .settings input[type="text"] {
   display: inline-block;
   padding: 1px;
   width: 145px;
