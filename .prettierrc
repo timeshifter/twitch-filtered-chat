@@ -1,0 +1,17 @@
+{
+  "trailingComma": "es5",
+  "tabWidth": 2,
+  "singleQuote": true,
+  "semi": true,
+  "useTabs": false,
+  "jsxBracketSameLine": true,
+  "htmlWhitespaceSensitivity": "strict",
+  "overrides": [
+    {
+      "files": "*.prettierc",
+      "options": {
+        "parser": "json"
+      }
+    }
+  ]
+}
