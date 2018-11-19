@@ -534,6 +534,9 @@ function ParseMessage(user, message, userData) {
     }
 
 
+    // FIXME: TODO: Disabled; can be hijacked
+    // www"style="position:fixed;bottom:0;left:0;top:0;right:0;opacity:1;background:#FFF;"onmouseover="window.location='https://www.twitch.tv/dwangoac';
+    /*
     //link parsing
     message = message + ' ';
 
@@ -555,7 +558,7 @@ function ParseMessage(user, message, userData) {
     }
 
     message = message.trim();
-
+    */
 
     //create the message html
     var p = `<p>${badge_text} <span class="username" style="color: ${user_col}">${userData["display-name"]}</span>${message_col == '' ? ":" : ""} <span style="${message_col}">${message_pre}${message}${message_post}</span>`;
