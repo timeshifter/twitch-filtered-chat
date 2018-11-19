@@ -5,12 +5,18 @@
   "semi": true,
   "useTabs": false,
   "jsxBracketSameLine": true,
-  "htmlWhitespaceSensitivity": "strict",
+  "htmlWhitespaceSensitivity": "css",
   "overrides": [
     {
       "files": "*.prettierc",
       "options": {
         "parser": "json"
+      }
+    },
+    {
+      "files": "*.html",
+      "options": {
+        "printWidth": 120
       }
     }
   ]
