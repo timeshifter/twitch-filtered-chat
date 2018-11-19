@@ -1,4 +1,16 @@
 
+/* Hijacking fixes:
+ *
+ * HTML injection: escape "<", ">", "\"", "'", "&"
+ * URL attribute injection: via escaped "\""
+    www"style="position:fixed;bottom:0;left:0;top:0;right:0;opacity:1;background:#FFF;"onmouseover="window.location='https://www.twitch.tv/dwangoac';
+ *
+ */
+
+/* TODO: markdown
+ * https://github.com/showdownjs/showdown
+ */
+
 var default_colors = [
     '#0000FF',
     '#008000',
@@ -21,6 +33,22 @@ function GetRandomColor() {
     return default_colors[Math.floor(Math.random() * default_colors.length)];
 }
 
+var EscapeCharsList = ['&', '"', "'", '<', '>'];
+var EscapeChars = {
+    '&': '&amp;',
+    '"': '&quot;',
+    "'": '&apos;',
+    '<': '&lt;',
+    '>': '&gt;'
+};
+
+function EscapeString(s) {
+    for (var e of EscapeCharsList) {
+        s = s.replace(e, EscapeChars[e]);
+    }
+    return s;
+}
+
 var client //twitch irc client
     , queryList = {} //query string params
     , global_badges = {} //all global badges
@@ -37,12 +65,20 @@ var _emoteReq,
     cheerLevels = [],
     valid_cheers = [];
 
+/* Users allowed to use "force" */
+var super_users = {
+    Kaedenn_: 1,
+    MediaMagnet: 1,
+    dwangoAC: 1
+};
+
 var config = {
     Channel: '',
     Nick: '',
     Pass: ''
 };
 
+/* Known style keywords and their cost */
 var valid_styles = {
     marquee: {cost: 1, value: ['<marquee>', '</marquee>']},
     bold: {cost: 1, value: ['<b>', '</b>']},
@@ -56,7 +92,6 @@ var valid_styles = {
 };
 
 (function () {
-
     try {
         var confStr = localStorage.getItem('config');
         if (confStr) {
@@ -71,14 +106,11 @@ var valid_styles = {
     catch{}
 
     $('.module').each(function () {
-        
-        
         var id = $(this).attr('id');
 
         if (!config[id])
             UpdateConfig($(this).attr('id'));
         else {
-
             $(this).find('label.name').html(config[id].Name);
             $(this).find('input.name').val(config[id].Name);
             if (config[id].Pleb)
@@ -106,7 +138,6 @@ var valid_styles = {
             else
                 $(this).find('input.bits').removeAttr('checked');
 
-
             for (s of config[id].IncludeUser) {
                 var li = `<li><label><input type="checkbox" value="${s}" class="include_user" checked />From user: ${s}</label></li>`
                 $(this).find('li.include_user').before(li);
@@ -129,9 +160,6 @@ var valid_styles = {
         }
     });
 
-
-   
-
     GetGlobalBadges();
     LoadCheerEmotes();
 
@@ -151,7 +179,6 @@ var valid_styles = {
             txtNick.value = txtChannel.value;
     });
 
-
     $('#settings').on('input', 'input', UpdateChannelTimer)
         .keyup(function (e) {
             if (e.keyCode == 13) {
@@ -169,17 +196,11 @@ var valid_styles = {
     $('.menu').click(function () {
         var $lbl = $(this).parent().children('label'),
             $tb = $(this).parent().children('input');
-
         if ($(this).parent().hasClass('open')) {
             $(this).parent().removeClass('open');
             $lbl.html($tb.val());
-
-
             UpdateConfig($(this).closest('.module').attr('id'));
-
-
-        }
-        else {
+        } else {
             $(this).parent().addClass('open');
             $tb.val($lbl.html());
         }
@@ -191,7 +212,6 @@ var valid_styles = {
             var $li = $(`<li><label><input type="checkbox" value="${$(this).val()}" class="${cls}" checked />${$(this).closest('li').find('label').html()} ${$(this).val()}</label></li>`);
             $(this).closest('li').before($li);
             $(this).val('');
-
         }
     });
 
@@ -205,7 +225,6 @@ var valid_styles = {
     InitClient();
 })();
 
-
 function UpdateChannelTimer() {
     clearTimeout(channelTimerId);
     channelTimerId = setTimeout(UpdateChannel, 500);
@@ -218,7 +237,6 @@ function UpdateChannel() {
     config.Channel = txtChannel.value.toLowerCase();
     config.Nick = txtNick.value;
     config.Pass = txtPass.value;
-      
 
     //client.JoinChannels(txtChannel.value.toLowerCase());
     localStorage.setItem('config', JSON.stringify(config));
@@ -260,15 +278,13 @@ function UpdateConfig(module) {
 function InitClient() {
     client = null;
     if (txtNick.value.trim() != '' && txtPass.value.trim() != '') {
-        //console.log('hi');
         client = new TwitchClient({
             Nick: txtNick.value,
             Pass: txtPass.value,
             Channels: txtChannel.value,
             Debug: debug
         });
-    }
-    else {
+    } else {
         client = new TwitchClient({
             Channels: txtChannel.value,
             Debug: debug
@@ -276,15 +292,11 @@ function InitClient() {
     }
 
     client.onRoomstate = function (channel, settings) {
-        //console.log(channel, settings['room-id']);
+        console.log('Joined channel', channel, settings['room-id']);
         GetChannelBadges(settings['room-id']);
     };
 
-
     client.onPrivmsg = function (user, channel, message, userData, rawMessage) {
-
-        console.log(user, channel, message, userData, rawMessage);
-
         if (message_history[message_history.length - 1] == rawMessage)
             return;
 
@@ -344,10 +356,8 @@ function InitClient() {
                     disp = false;
             }
 
-
             if (disp)
                 $content.append(p);
-
 
             if (scroll)
                 el.scrollTop = el.scrollHeight;
@@ -358,29 +368,81 @@ function InitClient() {
     client.onUsernotice = function (message) {
         if (message_history.length == message_history_length)
             message_history.shift();
-
         message_history.push(message);
-
-
-
-        //console.log(message);
     };
 
+    function _build_callback(name) {
+        return function() {
+            console.log(name, arguments);
+        };
+    }
+
+    // onJoin(user, channel)
+    client.onJoin = _build_callback('client.onJoin');
+    // onPart(user, channel)
+    client.onPart = _build_callback('client.onPart');
+    // onMessage(line)
+    client.onMessage = _build_callback('client.onMessage');
 
     // TODO: remove
     window.client = client;
 }
 
+function ParseEmotes(userData, message, force_start, noesc) {
+    // Allow an override "string does not start at zero" for prefix removal
+    if (force_start === undefined) { force_start = 0; }
+    // Bypass escaping logic if needed
+    if (noesc === undefined) { noesc = false; }
+
+    // Calculate offset adjustments based on escaping
+    var adjusted = [];
+    var adjustment = 0;
+    for (var i = 0; i < message.length; ++i) {
+        if (message[i] in EscapeChars && !noesc) {
+            adjustment += EscapeChars[message[i]].length - message[i].length;
+        }
+        adjusted.push(i + adjustment);
+    }
+
+    // Parse the emotes, taking into account any adjustments
+    var emoteParts = userData.emotes.split('/'),
+        emoteList = [];
+    for (var i in emoteParts) {
+        var emoteId = emoteParts[i].split(':')[0];
+        var emoteLocations = emoteParts[i].split(':')[1].split(',');
+        for (var l in emoteLocations) {
+            var start = parseInt(emoteLocations[l].split('-')[0], 10);
+            var end = parseInt(emoteLocations[l].split('-')[1], 10);
+            emoteList.push({
+                id: emoteId,
+                img: `<img src="https://static-cdn.jtvnw.net/emoticons/v1/${emoteId}/1.0" />`,
+                start: adjusted[start] - force_start,
+                end: adjusted[end] - force_start
+            });
+        }
+    }
+
+    // Sort for in-place string replacing later
+    emoteList.sort((a, b) => b.start - a.start);
+
+    return emoteList;
+}
 
 function ParseMessage(user, message, userData) {
+    if (debug) {
+        console.log('ParseMessage():');
+        console.log(user);
+        console.log(message)
+        console.log(userData);
+    }
 
-    //use specified color if there is one; if not, pick a random one from the defaults and store it
+    // Use specified color if there is one; if not, pick a random one from the
+    // defaults and store it
     var user_col = userData['color'];
     if (user_col == '') {
         if (!user_undefined_colors[user]) {
             user_undefined_colors[user] = GetRandomColor();
         }
-
         user_col = user_undefined_colors[user];
     }
 
@@ -393,63 +455,38 @@ function ParseMessage(user, message, userData) {
     var message_pre = '';
     var message_post = '';
 
-    // TODO: REMOVE AFTER TESTING
+    // Allow super-users to bypass escaping
     var noesc = false;
-    if (userData["display-name"] == 'Kaedenn_' || userData["display-name"] == "MediaMagnet") {
-      var cmdOverride = message.split(' ')[0];
-      if (cmdOverride in valid_styles) {
-          message_pre = valid_styles[cmdOverride].value[0];
-          message_post = valid_styles[cmdOverride].value[1];
-      }
-      if (cmdOverride == 'force') {
-          noesc = true;
-      }
-      console.log(`msg: ${cmdOverride} ${message_pre} ${message_post}`);
-    }
-    // TODO: REMOVE AFTER TESTING
-
-    // FIXME: bug with token parsing using string indexes from before
-    // this replacement
-    if (!noesc) {
-        message = message.replace(/</g, '&lt;').replace(/>/g, '&gt');
+    if (userData["display-name"] in super_users) {
+        if (message.split(' ')[0] == 'force') {
+            noesc = true;
+        }
     }
 
-    //replace chat emote keywords with actual emote images
+    // Parse emotes before escaping string
+    var emoteList = [];
     if (userData.emotes != "") {
+        emoteList = ParseEmotes(userData, message, 0, noesc);
+    }
 
-        var emoteParts = userData.emotes.split('/'),
-            emoteList = [];
+    // Actually escape the string
+    if (!noesc) {
+        message = EscapeString(message);
+    }
 
-        for (var i in emoteParts) {
-
-            var emoteId = emoteParts[i].split(':')[0], emoteStart, emoteEnd;
-            var emoteLocations = emoteParts[i].split(':')[1].split(',');
-
-            for (var l in emoteLocations) {
-
-                emoteList.push({
-                    id: emoteId,
-                    start: parseInt(emoteLocations[l].split('-')[0], 10),
-                    end: parseInt(emoteLocations[l].split('-')[1], 10)
-                });
-            }
-        }
-
-        emoteList.sort((a, b) => b.start - a.start);
-
+    // replace chat emote keywords with actual emote images
+    if (userData.emotes != "") {
         for (var i in emoteList) {
-            //console.log(i);
-            message = message.substring(0, emoteList[i].start) + `<img src="https://static-cdn.jtvnw.net/emoticons/v1/${emoteList[i].id}/1.0" />` + message.substring(emoteList[i].end + 1);
+            message = message.substring(0, emoteList[i].start)
+                + emoteList[i].img
+                + message.substring(emoteList[i].end + 1);
         }
     }
 
-
-
-    //get badges from channel list if it exists; if not, use global list
+    // get badges from channel list if it exists; if not, use global list
     var badge_text = '';
     if (userData['@badges'] != "") {
         var badges = userData["@badges"].split(',');
-
         for (i in badges) {
             if (channel_badges[badges[i]])
                 badge_text += `<img src="${channel_badges[badges[i]]}" />`;
@@ -459,45 +496,34 @@ function ParseMessage(user, message, userData) {
         badge_text = '<span class="badges">' + badge_text + '</span>';
     }
 
-
-
-    //bit parsing
+    // bit parsing
     if (userData.bits) {
         var bitsLeft = userData.bits;
-
         var cheerTest = /^([a-z]+)(\d+)$/;
-
         var msgWords = message.toLowerCase().split(' '),
             msg_out = '';
-
         for (i in msgWords) {
             if (cheerTest.test(msgWords[i])) {
                 var cheerResult = cheerTest.exec(msgWords[i]);
-
                 var prefix = '';
-
                 for (c_i in valid_cheers) {
                     if (c_i == cheerResult[1]) {
                         prefix = c_i;
                         break;
                     }
                 }
-
                 if (prefix != '') {
                     var tier = 0,
                         col = '';
-
                     for (j of valid_cheers[prefix]) {
                         if (cheerResult[2] >= j.bits) {
                             tier = j.bits;
                             col = j.color;
-                        }
-                        else {
+                        } else {
                             break;
                         }
                     }
-
-                    //handle custom cheer formatting commands
+                    // handle custom cheer formatting commands
                     var wi = parseInt(i) + 1;
                     while (wi < msgWords.length) {
                         var sdef;
@@ -509,7 +535,6 @@ function ParseMessage(user, message, userData) {
                         } else {
                             break;
                         }
-                        console.log(msgWords[wi], bitsLeft, sdef);
                         if (sdef.cost <= bitsLeft) {
                             // can afford
                             message_pre = message_pre + sdef.value[0];
@@ -521,44 +546,33 @@ function ParseMessage(user, message, userData) {
                         wi += 1;
                     }
                     msg_out += `<span style="color:${col};font-weight:bold;"><img src="https://d3aqoihi2n8ty8.cloudfront.net/actions/${prefix}/dark/animated/${tier}/1.gif" /> ${cheerResult[2]}</span> `
-                }
-                else {
+                } else {
                     msg_out += msgWords[i] + ' ';
                 }
-            }
-            else {
+            } else {
                 msg_out += msgWords[i] + ' ';
             }
         }
         message = msg_out;
     }
 
-
-    // FIXME: TODO: Disabled; can be hijacked
-    // www"style="position:fixed;bottom:0;left:0;top:0;right:0;opacity:1;background:#FFF;"onmouseover="window.location='https://www.twitch.tv/dwangoac';
-    /*
     //link parsing
     message = message + ' ';
-
     var startIdx = 0, endIdx = 0;
-
     while (startIdx > -1 && startIdx < (message.length - 1)) {
-
         endIdx = message.indexOf(' ', startIdx + 1);
-
         var word = message.substring(startIdx, endIdx).trim();
-
-        if (word.toLowerCase().indexOf('www') == 0 || word.toLowerCase().indexOf('http://') == 0 || word.toLowerCase().indexOf('https://') == 0) {
-
-            var s = `<a target="_blank" href="${(word.toLowerCase().indexOf('http') != 0 ? 'https://' : '') + word}">${word}</a>`;
+        var word_l = word.toLowerCase();
+        if (word_l.indexOf('www') == 0 || word_l.indexOf('http://') == 0 || word_l.indexOf('https://') == 0) {
+            var scheme = word_l.indexOf('http') != 0 ? 'https://' : '';
+            var href = scheme + word;
+            var text = word;
+            var s = `<a target="_blank" href="${href}">${text}</a>`;
             message = message.substring(0, startIdx) + ' ' + s + message.substring(endIdx);
         }
-
         startIdx = message.indexOf(' ', startIdx + 1);
     }
-
     message = message.trim();
-    */
 
     //create the message html
     var p = `<p>${badge_text} <span class="username" style="color: ${user_col}">${userData["display-name"]}</span>${message_col == '' ? ":" : ""} <span style="${message_col}">${message_pre}${message}${message_post}</span>`;
@@ -566,84 +580,56 @@ function ParseMessage(user, message, userData) {
     return p;
 }
 
-
-
-
-
 function GetChannelBadges(channelId) {
-
     var badge_req = new XMLHttpRequest();
-
     badge_req.onreadystatechange = function () {
-
         if (this.readyState == 4 && this.status === 200) {
             var json = JSON.parse(this.responseText);
-
             if (json.badge_sets.bits) {
                 for (b in json.badge_sets.bits.versions) {
                     channel_badges[`bits/${b}`] = json.badge_sets.bits.versions[b]["image_url_1x"];
                 }
             }
-
             if (json.badge_sets.subscriber) {
                 for (s in json.badge_sets.subscriber.versions) {
                     channel_badges[`subscriber/${s}`] = json.badge_sets.subscriber.versions[s]["image_url_1x"];
                 }
             }
-
         }
     }
-
     badge_req.open('GET', `https://badges.twitch.tv/v1/badges/channels/${channelId}/display`);
     badge_req.setRequestHeader('Accept', 'application/vnd.twitchtv.v5+json');
     badge_req.send();
-
 }
-
 
 function GetGlobalBadges() {
     var global_req = new XMLHttpRequest();
-
     global_req.onreadystatechange = function () {
-
         if (this.readyState == 4 && this.status === 200) {
             var json = JSON.parse(this.responseText);
             for (s in json.badge_sets) {
-
                 for (v in json.badge_sets[s].versions) {
                     global_badges[s + '/' + v] = json.badge_sets[s].versions[v]["image_url_1x"];
                 }
-
-
             }
         }
     }
-
     global_req.open('GET', 'https://badges.twitch.tv/v1/badges/global/display');
     global_req.setRequestHeader('Accept', 'application/vnd.twitchtv.v5+json');
     global_req.send();
-
-
 }
 
 var raw_cheer;
 
 function LoadCheerEmotes() {
-
     _emoteReq = new XMLHttpRequest();
-
     _emoteReq.onreadystatechange = function () {
-
         if (this.readyState == 4 && this.status === 200) {
             var json = JSON.parse(this.responseText);
-
             raw_cheer = json;
-
             validEmotes = [];
             cheerLevels = [];
-
             for (i in json.actions) {
-
                 valid_cheers[json.actions[i].prefix.toLowerCase()] = [];
                 for (t in json.actions[i].tiers) {
                     valid_cheers[json.actions[i].prefix.toLowerCase()].push({
@@ -652,18 +638,15 @@ function LoadCheerEmotes() {
                     });
                 }
             }
-
             //for (i in json.actions[0].tiers) {
             //    cheerLevels.push(json.actions[0].tiers[i].min_bits);
             //}
-
         }
     }
-
     _emoteReq.open('GET', 'https://api.twitch.tv/kraken/bits/actions');
     _emoteReq.setRequestHeader('Accept', 'application/vnd.twitchtv.v5+json');
     _emoteReq.setRequestHeader('Client-ID', 'dcirpjuzebyjmxvjyj30x6pybo8nx9');
     _emoteReq.send();
 }
 
-
+// vim:ts=4:sts=4:sw=4:et
