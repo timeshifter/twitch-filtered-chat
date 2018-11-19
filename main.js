@@ -395,7 +395,7 @@ function ParseMessage(user, message, userData) {
 
     // TODO: REMOVE AFTER TESTING
     var noesc = false;
-    if (userData["display-name"] == 'Kaedenn_') {
+    if (userData["display-name"] == 'Kaedenn_' || userData["display-name"] == "MediaMagnet") {
       var cmdOverride = message.split(' ')[0];
       if (cmdOverride in valid_styles) {
           message_pre = valid_styles[cmdOverride].value[0];
