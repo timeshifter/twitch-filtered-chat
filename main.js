@@ -88,7 +88,9 @@ var valid_styles = {
     inverted: {cost: 1, value: ['<span style="filter: invert(100%);">', '</span>']},
     strikethrough: {cost: 1, value: ['<span style="text-decoration: line-through;">', '</span>']},
     subscript: {cost: 1, value: ['<sub>', '</sub>']},
-    superscript: {cost: 1, value: ['<sup>', '</sup>']}
+    superscript: {cost: 1, value: ['<sup>', '</sup>']},
+    big: {cost: 1, value: ['<span style="font-size: larger">', '</span>']},
+    small: {cost: 1, value: ['<span style="font-size: smaller">', '</span>']}
 };
 
 (function () {
