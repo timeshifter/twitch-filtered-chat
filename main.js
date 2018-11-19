@@ -502,23 +502,23 @@ function ParseMessage(user, message, userData) {
                     while (wi < msgWords.length) {
                         var sdef;
                         if (msgWords[wi] in valid_styles) {
-                            var sdef = valid_styles[msgWords[wi]];
+                            sdef = valid_styles[msgWords[wi]];
                         } else if (msgWords[wi] in colors) {
                             // hard-coded: colors cost 1 bit
                             sdef = {cost: 1, value: [`<span style="color:${colors[msgWords[wi]]};">`, `</span>`]};
+                        } else {
+                            break;
                         }
-                        if (sdef) {
-                            console.log(msgWords[wi], bitsLeft, sdef);
-                            if (sdef.cost <= bitsLeft) {
-                                // can afford
-                                message_pre = message_pre + sdef.value[0];
-                                message_post = sdef.value[1] + message_post;
-                                bitsLeft -= sdef.cost;
-                            } else {
-                                break;
-                            }
-                            wi += 1;
+                        console.log(msgWords[wi], bitsLeft, sdef);
+                        if (sdef.cost <= bitsLeft) {
+                            // can afford
+                            message_pre = message_pre + sdef.value[0];
+                            message_post = sdef.value[1] + message_post;
+                            bitsLeft -= sdef.cost;
+                        } else {
+                            break;
                         }
+                        wi += 1;
                     }
                     msg_out += `<span style="color:${col};font-weight:bold;"><img src="https://d3aqoihi2n8ty8.cloudfront.net/actions/${prefix}/dark/animated/${tier}/1.gif" /> ${cheerResult[2]}</span> `
                 }
