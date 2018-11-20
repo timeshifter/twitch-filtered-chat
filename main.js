@@ -52,6 +52,41 @@ var config = {
     Pass: ''
 };
 
+function onLoadChannelBadges(json) {
+    if (json.badge_sets.bits) {
+        for (b in json.badge_sets.bits.versions) {
+            channel_badges[`bits/${b}`] = json.badge_sets.bits.versions[b]["image_url_1x"];
+        }
+    }
+    if (json.badge_sets.subscriber) {
+        for (b in json.badge_sets.subscriber.versions) {
+            channel_badges[`subscriber/${b}`] = json.badge_sets.subscriber.versions[b]["image_url_1x"];
+        }
+    }
+}
+
+function onLoadGlobalBadges(json) {
+    for (s in json.badge_sets) {
+        for (v in json.badge_sets[s].versions) {
+            var key = s + "/" + v
+            global_badges[key] = json.badge_sets[s].versions[v]["image_url_1x"];
+        }
+    }
+}
+
+function onLoadCheerEmotes(json) {
+    for (i in json.actions) {
+        var p = json.actions[i].prefix.toLowerCase();
+        valid_cheers[p] = [];
+        for (t in json.actions[i].tiers) {
+            valid_cheers[p].push({
+                bits: json.actions[i].tiers[t].min_bits,
+                color: json.actions[i].tiers[t].color
+            });
+        }
+    }
+}
+
 (function () {
     try {
         var confStr = localStorage.getItem('config');
@@ -269,7 +304,6 @@ function InitClient() {
         var p = ParseMessage(user, message, userData);
 
         //go through each module and append the message
-        //TODO: message filtering
         $('.module').each(function () {
             var id = $(this).attr('id');
             var $content = $(this).find('.content');
@@ -345,6 +379,11 @@ function InitClient() {
     // onMessage(line)
     client.onMessage = _build_callback('client.onMessage');
 
+    // onSub(line) callbacks
+    client.onSub = _build_callback('client.onSub');
+    client.onReSub = _build_callback('client.onReSub');
+    client.onGiftSub = _build_callback('client.onGiftSub');
+
     // TODO: remove
     window.client = client;
 }
@@ -390,13 +429,6 @@ function ParseEmotes(userData, message, force_start, noesc) {
 }
 
 function ParseMessage(user, message, userData) {
-    if (debug) {
-        console.log('ParseMessage():');
-        console.log(user);
-        console.log(message)
-        console.log(userData);
-    }
-
     // Use specified color if there is one; if not, pick a random one from the
     // defaults and store it
     var user_col = userData['color'];
@@ -580,14 +612,11 @@ function GetGlobalBadges() {
     global_req.send();
 }
 
-var raw_cheer;
-
 function LoadCheerEmotes() {
     _emoteReq = new XMLHttpRequest();
     _emoteReq.onreadystatechange = function () {
         if (this.readyState == 4 && this.status === 200) {
             var json = JSON.parse(this.responseText);
-            raw_cheer = json;
             validEmotes = [];
             cheerLevels = [];
             for (i in json.actions) {
