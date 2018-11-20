@@ -37,7 +37,7 @@ var client //twitch irc client
     , user_undefined_colors = {} //list of users with no defined color, to store a randomly chosen color
     , message_history = []
     , message_history_length = 500
-    , debug=true
+    , debug=(document.location.protocol == "file:")
     ;
 
 var _emoteReq,
@@ -156,8 +156,8 @@ function onLoadCheerEmotes(json) {
         }
     });
 
-    GetGlobalBadges();
-    LoadCheerEmotes();
+    LoadGlobalBadges(onLoadGlobalBadges);
+    LoadCheerEmotes(onLoadCheerEmotes);
 
     //create queryList array
     if (window.location.search) {
@@ -166,7 +166,6 @@ function onLoadCheerEmotes(json) {
         for (var i = 0; i < queryParts.length; i++) {
             var parts = queryParts[i].split('=');
             queryList[parts[0].trim()] = parts[1].trim();
-
         }
     }
 
@@ -289,7 +288,7 @@ function InitClient() {
 
     client.onRoomstate = function (channel, settings) {
         console.log('Joined channel', channel, settings['room-id']);
-        GetChannelBadges(settings['room-id']);
+        LoadChannelBadges(settings['room-id'], onLoadChannelBadges);
     };
 
     client.onPrivmsg = function (user, channel, message, userData, rawMessage) {
@@ -571,72 +570,6 @@ function ParseMessage(user, message, userData) {
     var p = `<p>${badge_text} <span class="username" style="color: ${user_col}">${userData["display-name"]}</span>${message_col == '' ? ":" : ""} <span style="${message_col}">${message_pre}${message}${message_post}</span>`;
 
     return p;
-}
-
-function GetChannelBadges(channelId) {
-    var badge_req = new XMLHttpRequest();
-    badge_req.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status === 200) {
-            var json = JSON.parse(this.responseText);
-            if (json.badge_sets.bits) {
-                for (b in json.badge_sets.bits.versions) {
-                    channel_badges[`bits/${b}`] = json.badge_sets.bits.versions[b]["image_url_1x"];
-                }
-            }
-            if (json.badge_sets.subscriber) {
-                for (s in json.badge_sets.subscriber.versions) {
-                    channel_badges[`subscriber/${s}`] = json.badge_sets.subscriber.versions[s]["image_url_1x"];
-                }
-            }
-        }
-    }
-    badge_req.open('GET', `https://badges.twitch.tv/v1/badges/channels/${channelId}/display`);
-    badge_req.setRequestHeader('Accept', 'application/vnd.twitchtv.v5+json');
-    badge_req.send();
-}
-
-function GetGlobalBadges() {
-    var global_req = new XMLHttpRequest();
-    global_req.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status === 200) {
-            var json = JSON.parse(this.responseText);
-            for (s in json.badge_sets) {
-                for (v in json.badge_sets[s].versions) {
-                    global_badges[s + '/' + v] = json.badge_sets[s].versions[v]["image_url_1x"];
-                }
-            }
-        }
-    }
-    global_req.open('GET', 'https://badges.twitch.tv/v1/badges/global/display');
-    global_req.setRequestHeader('Accept', 'application/vnd.twitchtv.v5+json');
-    global_req.send();
-}
-
-function LoadCheerEmotes() {
-    _emoteReq = new XMLHttpRequest();
-    _emoteReq.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status === 200) {
-            var json = JSON.parse(this.responseText);
-            validEmotes = [];
-            cheerLevels = [];
-            for (i in json.actions) {
-                valid_cheers[json.actions[i].prefix.toLowerCase()] = [];
-                for (t in json.actions[i].tiers) {
-                    valid_cheers[json.actions[i].prefix.toLowerCase()].push({
-                        bits: json.actions[i].tiers[t].min_bits,
-                        color: json.actions[i].tiers[t].color
-                    });
-                }
-            }
-            //for (i in json.actions[0].tiers) {
-            //    cheerLevels.push(json.actions[0].tiers[i].min_bits);
-            //}
-        }
-    }
-    _emoteReq.open('GET', 'https://api.twitch.tv/kraken/bits/actions');
-    _emoteReq.setRequestHeader('Accept', 'application/vnd.twitchtv.v5+json');
-    _emoteReq.setRequestHeader('Client-ID', 'dcirpjuzebyjmxvjyj30x6pybo8nx9');
-    _emoteReq.send();
 }
 
 // vim:ts=4:sts=4:sw=4:et
