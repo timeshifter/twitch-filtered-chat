@@ -157,7 +157,7 @@ function onLoadCheerEmotes(json) {
     });
 
     LoadGlobalBadges(onLoadGlobalBadges);
-    LoadCheerEmotes(onLoadCheerEmotes);
+    LoadCheerEmotes('254ae3otzi9r7ghkl56p8d8ijctwq5', onLoadCheerEmotes);
 
     //create queryList array
     if (window.location.search) {

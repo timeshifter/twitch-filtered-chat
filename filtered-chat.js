@@ -14,20 +14,20 @@ function FilteredChat(config) {
   this.config = config;
   this.client = null;
 
-  this.superusers = {'Kaedenn_': 1};
-  this.global_badges = {};
-  this.channel_badges = {};
-  this.user_colors = {};
-  this.valid_emotes = [];
-  this.valid_cheers = [];
-  this.cheer_levels = [];
-  this.history = [];
-  this.history_size = config.HistorySize || 500;
-  this.debug = !!config.Debug;
+  this._superusers = {'Kaedenn_': 1};
+  this._global_badges = {};
+  this._channel_badges = {};
+  this._user_colors = {};
+  this._valid_emotes = [];
+  this._valid_cheers = [];
+  this._cheer_levels = [];
+  this._history = [];
+  this._history_size = config.HistorySize || 500;
+  this._debug = !!config.Debug;
 
   if (config.Superusers) {
     for (var user in config.Superusers) {
-      this.superusers[user] = 1;
+      this._superusers[user] = 1;
     }
   }
 
@@ -44,7 +44,7 @@ function FilteredChat(config) {
   this._loadAssets();
 
   // Construct the client and connect to Twitch
-  if (nick.trim() != '' && pass.trim() != '') {
+  if (nick && pass && nick.trim() != '' && pass.trim() != '') {
     this.client = new TwitchClient({
       Nick: nick,
       Pass: pass,
@@ -60,6 +60,24 @@ function FilteredChat(config) {
 
   // Room information
   this.rooms = {}
+
+  // FIXME: this overrides the "this" variable to be the TwitchClient class
+  this.client.onRoomstate = this.onRoomstate;
+  this.client.onPrivmsg = this.onPrivmsg;
+  this.client.onUsernotice = this.onUsernotice;
+  this.client.onJoin = this.onJoin;
+  this.client.onPart = this.onPart;
+  this.client.onMessage = this.onMessage;
+  this.client.onSub = this.onSub;
+  this.client.onReSub = this.onReSub;
+  this.client.onGiftSub = this.onGiftSub;
+
+}
+
+FilteredChat.prototype.debug = function() {
+  // Obtain stack trace
+  var stack = Util.GetStackTrace();
+  console.log('FilteredChat debug:', stack, arguments);
 }
 
 FilteredChat.prototype._loadAssets = function() {
@@ -68,16 +86,16 @@ FilteredChat.prototype._loadAssets = function() {
     for (s in json.badge_sets) {
       for (v in json.badge_sets[s].versions) {
         var key = s + "/" + v
-        self.global_badges[key] = json.badge_sets[s].versions[v]["image_url_1x"];
+        self._global_badges[key] = json.badge_sets[s].versions[v]["image_url_1x"];
       }
     }
   }
   function cb_loadCheerEmotes(json) {
     for (i in json.actions) {
       var p = json.actions[i].prefix.toLowerCase();
-      self.valid_cheers[p] = [];
+      self._valid_cheers[p] = [];
       for (t in json.actions[i].tiers) {
-        self.valid_cheers[p].push({
+        self._valid_cheers[p].push({
           bits: json.actions[i].tiers[t].min_bits,
           color: json.actions[i].tiers[t].color
         });
@@ -89,18 +107,20 @@ FilteredChat.prototype._loadAssets = function() {
 }
 
 FilteredChat.prototype.onRoomstate = function(channel, settings) {
+  console.log(this, this.debug);
+  this.debug('onRoomstate', channel, settings);
   var self = this;
   function cb_loadChannelBadges(json) {
     if (json.badge_sets.bits) {
       for (b in json.badge_sets.bits.versions) {
         var version = json.badge_sets.bits.versions[b];
-        self.channel_badges[`bits/${b}`] = version["image_url_1x"];
+        self._channel_badges[`bits/${b}`] = version["image_url_1x"];
       }
     }
     if (json.badge_sets.subscriber) {
       for (b in json.badge_sets.subscriber.versions) {
         var version = json.badge_sets.subscriber.versions[b];
-        self.channel_badges[`subscriber/${b}`] = version["image_url_1x"];
+        self._channel_badges[`subscriber/${b}`] = version["image_url_1x"];
       }
     }
   }
@@ -121,10 +141,10 @@ FilteredChat.prototype.onPrivmsg = function(user, channel, message, userData, ra
 }
 
 FilteredChat.prototype.onUsernotice = function(message) {
-  if (this.history.length == this.history_size) {
-    this.history.shift();
+  if (this._history.length == this._history_size) {
+    this._history.shift();
   }
-  this.history.push(message);
+  this._history.push(message);
 }
 
 FilteredChat.prototype.onJoin = function(user, channel) {
