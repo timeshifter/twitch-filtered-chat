@@ -233,7 +233,7 @@ var config = {
   InitClient();
 })();
 
-function EscapeHtml(text) {
+function escapeHtml(text) {
   const div = document.createElement('div');
   const textNode = document.createTextNode(text);
   div.appendChild(textNode);
@@ -390,7 +390,7 @@ function ParseMessage(user, message, userData) {
     user_col = user_undefined_colors[user];
   }
 
-  message = EscapeHtml(message);
+  message = escapeHtml(message);
 
   var message_col = '';
   if (message.indexOf('ACTION') == 0) {
