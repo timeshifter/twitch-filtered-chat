@@ -491,7 +491,7 @@ function ParseMessage(user, message, userData) {
     }
 
     // bit parsing
-    if (userData.bits) {
+    if (userData.bits && parseInt(userData.bits, 10) > 0) {
         var bitsLeft = userData.bits;
         var cheerTest = /^([a-z]+)(\d+)$/;
         var msgWords = message.toLowerCase().split(' '),
