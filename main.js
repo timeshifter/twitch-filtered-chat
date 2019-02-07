@@ -352,6 +352,9 @@ function InitClient() {
                     disp = false;
             }
 
+            if ($content.children('p').length >= message_history_length)
+                $content.children('p')[0].remove();
+
             if (disp)
                 $content.append(p);
 
