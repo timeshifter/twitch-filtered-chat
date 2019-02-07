@@ -568,6 +568,9 @@ function ParseMessage(user, message, userData) {
     }
     message = message.trim();
 
+    if (user_col == '#000000')
+        user_col = '#4D4D4D';
+
     //create the message html
     var p = `<p>${badge_text} <span class="username" style="color: ${user_col}">${userData["display-name"]}</span>${message_col == '' ? ":" : ""} <span style="${message_col}">${message_pre}${message}${message_post}</span>`;
 
