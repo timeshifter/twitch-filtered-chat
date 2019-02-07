@@ -38,7 +38,7 @@ var client //twitch irc client
     , channel_badges = {} //all channel-specific badges
     , user_undefined_colors = {} //list of users with no defined color, to store a randomly chosen color
     , message_history = []
-    , message_history_length = 500
+    , message_history_length = 100
     , debug=(document.location.protocol == "file:")
     ;
 
@@ -351,6 +351,9 @@ function InitClient() {
                 if (message.toLowerCase().indexOf(s.toLowerCase()) == 0)
                     disp = false;
             }
+
+            if ($content.children('p').length >= message_history_length)
+                $content.children('p')[0].remove();
 
             if (disp)
                 $content.append(p);
