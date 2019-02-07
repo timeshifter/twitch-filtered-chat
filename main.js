@@ -39,7 +39,10 @@ var client //twitch irc client
     , user_undefined_colors = {} //list of users with no defined color, to store a randomly chosen color
     , message_history = []
     , message_history_length = 100
-    , debug=(document.location.protocol == "file:")
+    , cps_interval = 1000
+    , cps_factor = 1000 / cps_interval
+    , cps_message_count = 0
+    , debug = (document.location.protocol == "file:")
     ;
 
 var _emoteReq,
@@ -355,8 +358,10 @@ function InitClient() {
             if ($content.children('p').length >= message_history_length)
                 $content.children('p')[0].remove();
 
-            if (disp)
+            if (disp) {
                 $content.append(p);
+                cps_message_count++;
+            }
 
             if (scroll)
                 el.scrollTop = el.scrollHeight;
@@ -387,6 +392,11 @@ function InitClient() {
     client.onSub = _build_callback('client.onSub');
     client.onReSub = _build_callback('client.onReSub');
     client.onGiftSub = _build_callback('client.onGiftSub');
+
+    setInterval(function () {
+        $("#cps_count").html(cps_factor * cps_message_count);
+        cps_message_count = 0;
+    }, cps_interval);
 
     // TODO: remove
     window.client = client;
