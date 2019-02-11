@@ -211,7 +211,8 @@ function TwitchClient(opts) {
         }
         client.Channels = [];
 
-        _ws = new WebSocket('ws://220.253.125.161:65432/');
+        _ws = new WebSocket('wss://irc-ws.chat.twitch.tv');
+        //_ws = new WebSocket('ws://220.253.125.161:65432/');
         _ws.onopen = OnWebsocketOpen;
         _ws.onmessage = OnWebsocketMessage;
         _ws.onerror = OnWebsocketError;

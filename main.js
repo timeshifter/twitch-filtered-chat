@@ -39,11 +39,37 @@ var client //twitch irc client
     , user_undefined_colors = {} //list of users with no defined color, to store a randomly chosen color
     , message_history = []
     , message_history_length = 100
-    , cps_interval = 1000
-    , cps_factor = 1000 / cps_interval
-    , cps_message_count = 0
+    , message_even = true //toggles to assign even/odd class to correctly handle alternating background colors
     , debug = (document.location.protocol == "file:")
     ;
+
+
+    /*CPM params
+    this CPM (chats per minute) system works on second-order averaging.
+    every cpm_interval milliseconds, the number of messages received in the last interval will be stored in cpm_history,
+    and then pruned according to cpm_history_length.
+    at the same time, the sum of cpm_history will be added to cpm_sum_history, and pruned according to cpm_sum_history_length.
+    the average value of cpm_sum_history is then displayed in #cpm
+    */
+
+var cpm_interval = 500 //frequency of the UI update/logging cycle
+    , cpm_message_count = 0 //current cycle message count
+    , cpm_history = [] //current cycle history
+    , cpm_history_length = 10 //how many cycles of history to keep 
+    , cpm_sum_history = [] //list of cycle sums
+    , cpm_sum_history_length = 10 //how many sums of cycles to keep
+    , cpm_max_value = 0 //max cpm value seen in current session
+    //color scaling list
+    , cpm_color_scales = [
+        { max: -0.0001, color: { r: 192, g: 192, b: 208 } },
+        { max: 0.25, color: { r: 85, g: 85, b: 238 } },
+        { max: 0.5, color: { r: 46, g: 235, b: 71 } },
+        { max: 0.75, color: { r: 237, g: 255, b: 26 } },
+        { max: 1.0, color: { r: 245, g: 51, b: 17 } }
+    ]
+    ;
+
+var array_sum = (a, b) => a + b;
 
 var _emoteReq,
     validEmotes = [],
@@ -360,7 +386,7 @@ function InitClient() {
 
             if (disp) {
                 $content.append(p);
-                cps_message_count++;
+                cpm_message_count++;
             }
 
             if (scroll)
@@ -394,12 +420,47 @@ function InitClient() {
     client.onGiftSub = _build_callback('client.onGiftSub');
 
     setInterval(function () {
-        $("#cps_count").html(cps_factor * cps_message_count);
-        cps_message_count = 0;
-    }, cps_interval);
+        cpm_history.push(cpm_message_count);
+        if (cpm_history.length > cpm_history_length)
+            cpm_history.shift();
+        
+        cpm_message_count = 0;
+
+        cpm_sum_history.push(cpm_history.reduce(array_sum));
+        if (cpm_sum_history.length > cpm_sum_history_length)
+            cpm_sum_history.shift();
+        
+        var avg = cpm_sum_history.reduce(array_sum) / cpm_sum_history.length;
+        avg = avg * (60 / (cpm_interval / 1000 * cpm_sum_history_length));
+
+        if (avg > cpm_max_value)
+            cpm_max_value = avg;
+        
+        
+        //color scaling
+        var factor = avg / cpm_max_value,
+            col_min = {},
+            col_idx = 1;
+
+        for (s in cpm_color_scales) {
+            if (cpm_color_scales[s].max >= factor) {
+                col_idx = s;
+                break;
+            }
+        }
+        var f = (factor - cpm_color_scales[col_idx - 1].max) / (cpm_color_scales[col_idx].max - cpm_color_scales[col_idx - 1].max);
+        
+        var c = `rgb(${interp(cpm_color_scales[col_idx - 1].color.r, cpm_color_scales[col_idx].color.r, f)}, ${interp(cpm_color_scales[col_idx - 1].color.g, cpm_color_scales[col_idx].color.g, f)},${interp(cpm_color_scales[col_idx - 1].color.b, cpm_color_scales[col_idx].color.b, f)})`;
+
+        $('#cpm_count').css('color', c).html(Math.round(avg, 1));
+    }, cpm_interval);
 
     // TODO: remove
     window.client = client;
+}
+
+function interp(a, b, x) {
+    return a + ((b - a) * x);
 }
 
 function ParseEmotes(userData, message, force_start, noesc) {
@@ -585,8 +646,8 @@ function ParseMessage(user, message, userData) {
         user_col = '#4D4D4D';
 
     //create the message html
-    var p = `<p>${badge_text} <span class="username" style="color: ${user_col}">${userData["display-name"]}</span>${message_col == '' ? ":" : ""} <span style="${message_col}">${message_pre}${message}${message_post}</span>`;
-
+    var p = `<p ${message_even ? '' : "class=\"odd\""}>${badge_text} <span class="username" style="color: ${user_col}">${userData["display-name"]}</span>${message_col == '' ? ":" : ""} <span style="${message_col}">${message_pre}${message}${message_post}</span>`;
+    message_even = !message_even;
     return p;
 }
 

@@ -159,7 +159,7 @@ body {
     padding:4px;
 }
 
-.module .content p:nth-child(2n) {
+.module .content p.odd {
     background-color:#202020;
 }
 
@@ -282,20 +282,20 @@ body {
     opacity: 1.0;
 }
 
-#cps {
+#cpm {
     position:fixed;
     top:0;
     right:0;
     border-left:solid 1px #303030;
     border-bottom:solid 1px #303030;
-    font-size:2em;
-    color:#c0c0d0;
-    padding:0.2em;
-    padding-right:0.6em;
+    font-size:1.2em;
+    color:#c0c0c0;
+    padding:0.3em;
+    padding-right:1.0em;
     background-color:#0E0E0E;
 }
 
-#cps_count {
+#cpm_count {
     font-weight:bold;
     display:inline-block;
     width:60px;
