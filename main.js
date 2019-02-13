@@ -57,14 +57,14 @@ var cpm_interval = 500 //frequency of the UI update/logging cycle
     , cpm_history = [] //current cycle history
     , cpm_history_length = 10 //how many cycles of history to keep 
     , cpm_sum_history = [] //list of cycle sums
-    , cpm_sum_history_length = 10 //how many sums of cycles to keep
+    , cpm_sum_history_length = 5 //how many sums of cycles to keep
     , cpm_max_value = 0 //max cpm value seen in current session
     //color scaling list
     , cpm_color_scales = [
         { max: -0.0001, color: { r: 192, g: 192, b: 208 } },
-        { max: 0.25, color: { r: 85, g: 85, b: 238 } },
-        { max: 0.5, color: { r: 46, g: 235, b: 71 } },
-        { max: 0.75, color: { r: 237, g: 255, b: 26 } },
+        { max: 0.2, color: { r: 85, g: 85, b: 238 } },
+        { max: 0.6, color: { r: 46, g: 235, b: 71 } },
+        { max: 0.9, color: { r: 237, g: 255, b: 26 } },
         { max: 1.0, color: { r: 245, g: 51, b: 17 } }
     ]
     ;
