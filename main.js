@@ -52,12 +52,12 @@ var client //twitch irc client
     the average value of cpm_sum_history is then displayed in #cpm
     */
 
-var cpm_interval = 500 //frequency of the UI update/logging cycle
+var cpm_interval = 250 //frequency of the UI update/logging cycle
     , cpm_message_count = 0 //current cycle message count
     , cpm_history = [] //current cycle history
-    , cpm_history_length = 10 //how many cycles of history to keep 
+    , cpm_history_length = 8 //how many cycles of history to keep 
     , cpm_sum_history = [] //list of cycle sums
-    , cpm_sum_history_length = 5 //how many sums of cycles to keep
+    , cpm_sum_history_length = 8 //how many sums of cycles to keep
     , cpm_max_value = 0 //max cpm value seen in current session
     //color scaling list
     , cpm_color_scales = [
